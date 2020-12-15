@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>kaxball A.S.</title>
+    <meta charset="utf-8">
+    <script src="lib/p2.min.js"></script>
+	<script src="js/connection.js"></script>
+	<script src="js/game.js"></script>
+	<script src="js/player_keyboard.js"></script>
+	<script src="js/remote_keyboard.js"></script>
+	<script src="js/player.js"></script>
+	<script src="js/ball.js"></script>
+	<script src="js/plane.js"></script>
+	<script src="js/enums.js"></script>
+	
+  </head>
+  <body>
+	<div id="mydiv">
+	<form id="myform" onsubmit="create_game(event);">
+		<h3>Choose nickname bitch</h3>
+		<input id="nickname" type="text" title="only letters and numbers" placeholder="nickname" required="required" pattern="[A-Za-z0-9]{1,20}">
+		<input type="submit" value="Ok">
+	</form>
+	</div>
+    <canvas width="600" height="400" id="mycanvas"></canvas>
+	<script>
+		// debugging purposes ofc
+		let game = null;
+		
+		function create_game(event) {
+			event.preventDefault();
+			const input = document.getElementById("nickname");
+			const nickname = input.value;
+			const canvas = "mycanvas";
+			
+			const my_div = document.getElementById("mydiv");
+			my_div.style.display = "none";
+			
+			game = new Game(canvas, nickname);
+		}
+    </script>
+  </body>
+</html>
