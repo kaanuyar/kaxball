@@ -2,6 +2,7 @@ class Player {
 	constructor(props) {
 		this.keyboard = props.keyboard;
 		this.name = props.name;
+		this.client_id = props.client_id;
 		
 		this.position = props.start_position;
 		this.radius = props.radius;
@@ -33,8 +34,8 @@ class Player {
 		ctx.restore();
 	}
 	
-	restart_position() {
-		this.position[0] = this.start_position[0];
-		this.position[1] = this.start_position[1];
+	set_position(position) {
+		this.position[0] = position[0];
+		this.position[1] = position[1];
 	}
 }

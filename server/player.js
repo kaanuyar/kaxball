@@ -5,7 +5,8 @@ class Player {
 		this.start_position = props.start_position;
 		this.start_velocity = props.start_velocity;
 		this.keyboard = props.keyboard;
-		this.name = props.name;
+		this.name = props.name || "default_name";
+		this.client_id = props.client_id;
 		this.force = 50;
 		this.max_velocity = 20;
 		this.shape = null;
@@ -37,11 +38,30 @@ class Player {
 		//console.log(this.body.velocity[0], this.body.velocity[1]);
 	}
 	
-	restart_position() {
-		this.body.position[0] = this.start_position[0];
-		this.body.position[1] = this.start_position[1];
-		this.body.velocity[0] = this.start_velocity[0];
-		this.body.velocity[1] = this.start_velocity[1];
+	render(ctx) {
+		ctx.beginPath();
+		let x = this.body.interpolatedPosition[0];
+		let y = this.body.interpolatedPosition[1];
+		let radius = this.shape.radius;
+		ctx.arc(x, y, radius, 0, 2 * Math.PI);
+		ctx.stroke();
+		
+		ctx.save();
+		ctx.scale(1, -1);
+		ctx.globalAlpha = 0.5;
+		ctx.font = "2px Georgia";
+		ctx.textAlign = "center";
+		ctx.fillText(this.name, x, -(y - 2 * this.shape.radius));
+		ctx.globalAlpha = 1;
+		ctx.restore();
+	}
+	
+	set_position_velocity(position, velocity) {
+		this.body.position[0] = position[0];
+		this.body.position[1] = position[1];
+		
+		this.body.velocity[0] = velocity[0];
+		this.body.velocity[1] = velocity[1];
 	}
 	
 	kick_available() {

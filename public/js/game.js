@@ -8,71 +8,39 @@ class Game {
 		this.last_time = 0;
 		this.display_name = display_name;
 		
-		this.start_positions = [[-15, 0], [15, 0], [-15, 10], [15, 10]];
+		this.start_positions = [[-15, 0], [15, 0], [-15, 10], [15, 10], [-15, -10], [15, -10]];
+		this.connection = new Connection(this.display_name, this);
+		this.builder = new Builder();
 		this.ball = null;
-		this.connection = null;
 		this.objects = [];
 		
-		this.create_world();
+		this.create_env();
 		window.requestAnimationFrame(this.animate.bind(this));
 	}
 	
-	create_world() {
-		this.connection = new Connection(this.display_name, this);
+	create_env() {
+		this.ball = this.builder.create_ball();
+		this.objects.push(this.ball);
 		
-		this.ball = this.create_ball();
-		this.create_planes();
-		this.create_boundaries();
-		
-		// for offline mode
-		//this.player = this.create_player(this.start_positions[0], this.display_name, new PlayerKeyboard(this.connection));
+		let planes_arr = this.builder.create_planes();
+		for(let plane of planes_arr)
+			this.objects.push(plane);
 	}
 	
-	create_player(start_position, display_name, keyboard) {
-		let player = new Player({
-			name: display_name,
-			keyboard: keyboard,
-			start_position: start_position,
-			radius: 2.5
-		});
+	create_self_player(client_id, start_index, display_name, connection) {
+		return this.create_player(client_id, start_index, display_name, new PlayerKeyboard(connection));
+	}
+	
+	create_remote_player(client_id, start_index, display_name) {
+		return this.create_player(client_id, start_index, display_name, new RemoteKeyboard());
+	}
+	
+	create_player(client_id, start_index, display_name, keyboard) {
+		let start_position = this.start_positions[start_index];
+		let player = this.builder.create_player(client_id, start_position, display_name, keyboard);
 		this.objects.push(player);
 		
 		return player;
-	}
-	
-	create_ball() {
-		let ball = new Ball({
-			start_position: [0.0, 0.0],
-			radius: 2.0
-		});
-		this.objects.push(ball);
-		
-		return ball;
-	}
-	
-	create_planes() {
-		let planesPos   = [[25,0], [-25,-0], [0,-15], [0, 15]];
-		let planesAngle = [Math.PI/2, 3*Math.PI/2, 0, Math.PI];
-		
-		for(let i = 0; i < planesPos.length; i++) {
-			let plane = new Plane({
-				start_position: planesPos[i],
-				angle: planesAngle[i]
-			});
-			this.objects.push(plane);
-		}
-	}
-	
-	create_boundaries() {
-		let boundariesPos   = [[30,0], [-30,-0], [0,-20], [0, 20]];
-		let boundariesAngle = [Math.PI/2, 3*Math.PI/2, 0, Math.PI];
-		
-		for(let i = 0; i < boundariesPos.length; i++) {
-			let boundary = new Plane({
-				start_position: boundariesPos[i],
-				angle: boundariesAngle[i]
-			});
-		}
 	}
 	
 	animate(time) {
@@ -102,6 +70,15 @@ class Game {
 	
 	remove_object(object) {
 		this.objects = this.objects.filter((e) => { return e !== object });
+	}
+	
+	restart_field(connected_objects) {
+		this.ball.set_position([0, 0]);
+		let index = 0;
+		for(let object of connected_objects) {
+			object.set_position(this.start_positions[index]);
+			index++;
+		}
 	}
 }
 	

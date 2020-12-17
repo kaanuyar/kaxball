@@ -28,7 +28,6 @@ class Server {
 		let params = url.parse(req.url, true).query;
 		let display_name = params.display_name ? params.display_name : "no_name";
 		
-		console.log("websocket connection opened");
 		let client = new Client(this.game, this.client_manager, socket, display_name);
 	}
 }

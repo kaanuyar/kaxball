@@ -21,8 +21,8 @@ class Ball {
 		ctx.stroke();
 	}
 	
-	restart_position() {
-		this.position[0] = this.start_position[0];
-		this.position[1] = this.start_position[1];
+	set_position(position) {
+		this.position[0] = position[0];
+		this.position[1] = position[1];
 	}
 }

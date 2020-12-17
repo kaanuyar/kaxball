@@ -43,11 +43,21 @@ class Ball {
 			this.kick(delta_time);
 	}
 	
-	restart_position() {
-		this.body.position[0] = this.start_position[0];
-		this.body.position[1] = this.start_position[1];
-		this.body.velocity[0] = this.start_velocity[0];
-		this.body.velocity[1] = this.start_velocity[1];
+	render(ctx) {
+		ctx.beginPath();
+		let x = this.body.interpolatedPosition[0];
+		let y = this.body.interpolatedPosition[1];
+		let radius = this.shape.radius;
+		ctx.arc(x, y, radius, 0, 2 * Math.PI);
+		ctx.stroke();
+	}
+	
+	set_position_velocity(position, velocity) {
+		this.body.position[0] = position[0];
+		this.body.position[1] = position[1];
+		
+		this.body.velocity[0] = velocity[0];
+		this.body.velocity[1] = velocity[1];
 	}
 	
 	begin_contact_callback(evt) {

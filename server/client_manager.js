@@ -34,13 +34,6 @@ class ClientManager {
 		}
 		return clients_arr;
 	}
-	
-	find_client_id_by_player(client) {
-		for(let client_id of Object.keys(this.clients)) {
-			if(this.clients[client_id].player == client)
-				return client_id;
-		}
-	}
 }
 
 module.exports = ClientManager;

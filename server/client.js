@@ -9,8 +9,6 @@ const NetworkEvent = {
 	POSITION:      "position"
 };
 
-let RemoteKeyboard = require("./remote_keyboard");
-
 class Client {
 	constructor(game, client_manager, socket, display_name) {
 		this.game = game;
@@ -19,20 +17,16 @@ class Client {
 		this.socket = socket;
 		this.display_name = display_name;
 		
-		this.player = null;
-		
-		this.init();
+		this.socket_on_connection();
 	}
 	
-	init() {
+	socket_on_connection() {
+		console.log("websocket connection opened", "display_name:", this.display_name);
 		this.socket.on("message", this.socket_on_message.bind(this));
 		this.socket.on("close", this.socket_on_close.bind(this));
 		
-		// add player to game
 		this.game_add_player();
-		// add_all msg to client
 		this.socket.send(this.add_all_msg());
-		// dispatch add_player msg to other clients
 		this.client_manager.dispatch_message(this.add_player_msg(), this);
 	}
 	
@@ -44,13 +38,11 @@ class Client {
 				let reply = JSON.stringify({event: NetworkEvent.PONG});
 				this.socket.send(reply);
 				break;
-			case NetworkEvent.KEYUP:
-				//this.client_manager.dispatch_message(message);
-				this.client_manager.clients[payload.client_id].player.keyboard.keycode_to_button(payload.keycode, 0);
-				break;
 			case NetworkEvent.KEYDOWN:
-				//this.client_manager.dispatch_message(message);
-				this.client_manager.clients[payload.client_id].player.keyboard.keycode_to_button(payload.keycode, 1);
+				this.game.get_player_by_client_id(this.client_id).keyboard.keycode_to_button(payload.keycode, 1);
+				break;
+			case NetworkEvent.KEYUP:
+				this.game.get_player_by_client_id(this.client_id).keyboard.keycode_to_button(payload.keycode, 0);
 				break;
 			default:
 				console.log("unknown event");
@@ -59,12 +51,11 @@ class Client {
 	}
 	
 	socket_on_close() {
-		console.log("websocket connection closed");
-		// remove player from game
+		console.log("websocket connection closed", "display_name:", this.display_name);
+		
 		this.game_remove_player();
-		// dispatch remove_player msg to other clients
-		this.client_manager.dispatch_message(this.remove_player_msg(), this);
 		this.client_manager.delete_client(this);
+		this.client_manager.dispatch_message(this.remove_player_msg(), this);
 	}
 	
 	add_all_msg() {
@@ -88,25 +79,13 @@ class Client {
 	}
 	
 	game_add_player() {
-		let clients = this.client_manager.get_all_clients();
-		this.game.ball.restart_position();
-		for(let client of clients) {
-			if(client !== this)
-				client.player.restart_position();
-		}	
-		
-		let obj_count = clients.length;
-		let player = this.game.create_player(this.game.start_positions[obj_count], this.display_name, new RemoteKeyboard());
-		this.player = player;
+		this.game.create_remote_player(this.client_id, this.display_name);
+		this.game.restart_field();
 	}
 	
 	game_remove_player() {
-		let clients = this.client_manager.get_all_clients();
-		this.game.ball.restart_position();
-		for(let client of clients)
-			client.player.restart_position();
-		
-		this.game.remove_object(this.client_manager.clients[this.client_id].player);
+		this.game.remove_object(this.game.get_player_by_client_id(this.client_id));
+		this.game.restart_field();
 	}
 }
 

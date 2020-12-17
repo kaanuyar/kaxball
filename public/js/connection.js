@@ -1,10 +1,21 @@
+const NetworkEvent = {
+	PING         : "ping",
+	PONG         : "pong",
+	ADD_ALL      : "add_all",
+	ADD_PLAYER   : "add_player",
+	REMOVE_PLAYER: "remove_player",
+	KEYDOWN      : "keydown",
+	KEYUP        : "keyup",
+	POSITION	 : "position"
+};
+
 class Connection {
 	constructor(display_name, game) {
 		this.game = game;
 		this.socket = null;
 		
 		this.connected_objects = {};
-		this.player_id = null;
+		this.client_id = null;
 		this.ping_interval = 30000;
 		
 		this.init(display_name);
@@ -17,50 +28,27 @@ class Connection {
 		setTimeout(this.send_ping.bind(this), this.ping_interval);
 		
 		this.socket.addEventListener("message", (event) => {
-			let json = JSON.parse(event.data);
+			let payload = JSON.parse(event.data);
 			
-			switch(json.event) {
+			switch(payload.event) {
 				case NetworkEvent.PONG:
 					console.log("pong received");
 					break;
-				case NetworkEvent.ADD_PLAYER:
-					this.game.ball.restart_position();
-					for (let [client_id, object] of Object.entries(this.connected_objects)) 
-						object.restart_position();
-					
-					let obj_count = Object.keys(this.connected_objects).length;
-					let player = this.game.create_player(this.game.start_positions[obj_count], json.display_name, new RemoteKeyboard());
-					this.connected_objects[json.client_id] = player;
-					break;
-				case NetworkEvent.REMOVE_PLAYER:
-					this.game.ball.restart_position();
-					for (let [client_id, object] of Object.entries(this.connected_objects)) 
-						object.restart_position();
-					
-					this.game.remove_object(this.connected_objects[json.client_id]);
-					delete this.connected_objects[json.client_id];
-					break;
 				case NetworkEvent.ADD_ALL:
-					this.player_id = json.self_id;
-					let players = json.players;
-					players.sort((first, second) => { return first.client_id - second.client_id; });
-					
-					for(let i = 0; i < players.length; i++) {
-						let keyboard = (this.player_id == players[i].client_id) ? new PlayerKeyboard(this) : new RemoteKeyboard();
-						let player = this.game.create_player(this.game.start_positions[i], players[i].display_name, keyboard);
-						this.connected_objects[players[i].client_id] = player;
-					}
+					this.client_id = payload.self_id;
+					this.add_all(payload);
+					break;
+				case NetworkEvent.ADD_PLAYER:
+					this.add_player(payload);
+					break;
+				case NetworkEvent.REMOVE_PLAYER:		
+					this.remove_player(payload);
 					break;
 				case NetworkEvent.POSITION:
-					this.game.ball.position[0] = json.ball.x;
-					this.game.ball.position[1] = json.ball.y;
-					for(let i = 0; i < json.players.length; i++) {
-						this.connected_objects[json.players[i].client_id].position[0] = json.players[i].x;
-						this.connected_objects[json.players[i].client_id].position[1] = json.players[i].y;
-					}
+					this.field_position(payload);
 					break;
 				default:
-					console.log("unknown event", json);
+					console.log("unknown event", payload);
 					break;
 			}
 		});
@@ -68,14 +56,14 @@ class Connection {
 	
 	send_keydown(keycode) {
 		if(this.socket.readyState != WebSocket.CLOSED) {
-			let keydown_message = JSON.stringify({event: NetworkEvent.KEYDOWN, keycode: keycode, client_id: this.player_id});
+			let keydown_message = JSON.stringify({event: NetworkEvent.KEYDOWN, keycode: keycode, client_id: this.client_id});
 			this.socket.send(keydown_message);
 		}
 	}
 	
 	send_keyup(keycode) {
 		if(this.socket.readyState != WebSocket.CLOSED) {
-			let keyup_message = JSON.stringify({event: NetworkEvent.KEYUP, keycode: keycode, client_id: this.player_id});
+			let keyup_message = JSON.stringify({event: NetworkEvent.KEYUP, keycode: keycode, client_id: this.client_id});
 			this.socket.send(keyup_message);
 		}
 	}
@@ -86,5 +74,44 @@ class Connection {
 			this.socket.send(ping_message);
 			setTimeout(this.send_ping.bind(this), this.ping_interval);
 		}
+	}
+	
+	field_position(payload) {
+		this.game.ball.set_position([payload.ball.x, payload.ball.y]);
+		for(let i = 0; i < payload.players.length; i++) {
+			let position = [payload.players[i].x, payload.players[i].y];
+			this.connected_objects[payload.players[i].client_id].set_position(position);
+		}
+	}
+	
+	add_all(payload) {
+		let players = payload.players;
+		players.sort((a, b) => a.client_id - b.client_id);
+		
+		for(let i = 0; i < players.length; i++) {
+			let start_index = Object.keys(this.connected_objects).length;
+			let player = null;
+			if(this.client_id == players[i].client_id)
+				player = this.game.create_self_player(this.client_id, start_index, players[i].display_name, this);
+			else
+				player = this.game.create_remote_player(players[i].client_id, start_index, players[i].display_name);
+			
+			this.connected_objects[players[i].client_id] = player;
+		}
+	}
+	
+	add_player(payload) {
+		let start_index = Object.keys(this.connected_objects).length;
+		let player = this.game.create_remote_player(payload.client_id, start_index, payload.display_name);
+		this.connected_objects[payload.client_id] = player;
+		
+		this.game.restart_field(this.connected_objects);
+	}
+	
+	remove_player(payload) {
+		this.game.remove_object(this.connected_objects[payload.client_id]);
+		delete this.connected_objects[payload.client_id];
+		
+		this.game.restart_field(this.connected_objects);
 	}
 }
