@@ -3,9 +3,6 @@ let {CollisionGroup, CollisionMask, NetworkEvent} = require("./enums.js");
 
 class Ball {
 	constructor(props) {
-		this.start_position = props.start_position;
-		this.start_velocity = props.start_velocity;
-		
 		this.shape = null;
 		this.body = null;
 		

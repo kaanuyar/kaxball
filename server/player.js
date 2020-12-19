@@ -2,8 +2,6 @@ let p2 = require("p2");
 
 class Player {
 	constructor(props) {
-		this.start_position = props.start_position;
-		this.start_velocity = props.start_velocity;
 		this.keyboard = props.keyboard;
 		this.name = props.name || "default_name";
 		this.client_id = props.client_id;

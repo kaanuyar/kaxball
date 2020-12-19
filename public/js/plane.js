@@ -1,6 +1,6 @@
 class Plane {
 	constructor(props) {
-		this.position = props.start_position;
+		this.position = props.start_position.slice();
 		this.angle = props.angle;
 		this.length = 60;
 	}

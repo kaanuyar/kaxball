@@ -21,7 +21,7 @@ class Client {
 	}
 	
 	socket_on_connection() {
-		console.log("websocket connection opened", "display_name:", this.display_name);
+		console.log("display_name:", this.display_name, "entered");
 		this.socket.on("message", this.socket_on_message.bind(this));
 		this.socket.on("close", this.socket_on_close.bind(this));
 		
@@ -51,7 +51,7 @@ class Client {
 	}
 	
 	socket_on_close() {
-		console.log("websocket connection closed", "display_name:", this.display_name);
+		console.log("display_name:", this.display_name, "left");
 		
 		this.game_remove_player();
 		this.client_manager.delete_client(this);

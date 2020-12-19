@@ -4,12 +4,8 @@ class Player {
 		this.name = props.name;
 		this.client_id = props.client_id;
 		
-		this.position = props.start_position;
+		this.position = props.start_position.slice();
 		this.radius = props.radius;
-		
-		this.start_position = [];
-		this.start_position[0] = this.position[0];
-		this.start_position[1] = this.position[1];
 	}
 	
 	update(delta_time) {

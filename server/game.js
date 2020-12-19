@@ -92,6 +92,11 @@ class Game {
 		this.world.remove_body(object);
 	}
 	
+	// implement this - its quick
+	remove_client_id(client_id) {
+		
+	}
+	
 	restart_field() {
 		let player_arr = this.create_player_arr();
 		this.ball.set_position_velocity([0, 0], [0, 0]);

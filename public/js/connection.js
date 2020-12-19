@@ -27,6 +27,7 @@ class Connection {
 		
 		setTimeout(this.send_ping.bind(this), this.ping_interval);
 		
+		// put this into a new function
 		this.socket.addEventListener("message", (event) => {
 			let payload = JSON.parse(event.data);
 			

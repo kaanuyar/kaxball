@@ -9,6 +9,7 @@ class Game {
 		this.display_name = display_name;
 		
 		this.start_positions = [[-15, 0], [15, 0], [-15, 10], [15, 10], [-15, -10], [15, -10]];
+		// start_index implement
 		this.connection = new Connection(this.display_name, this);
 		this.builder = new Builder();
 		this.ball = null;
@@ -75,8 +76,8 @@ class Game {
 	restart_field(connected_objects) {
 		this.ball.set_position([0, 0]);
 		let index = 0;
-		for(let object of connected_objects) {
-			object.set_position(this.start_positions[index]);
+		for(let client_id of Object.keys(connected_objects)) {
+			connected_objects[client_id].set_position(this.start_positions[index]);
 			index++;
 		}
 	}
