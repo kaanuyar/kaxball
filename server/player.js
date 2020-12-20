@@ -54,6 +54,14 @@ class Player {
 		ctx.restore();
 	}
 	
+	keydown_press(keycode) {
+		this.keyboard.keycode_to_button(keycode, 1);
+	}
+	
+	keyup_press(keycode) {
+		this.keyboard.keycode_to_button(keycode, 0);
+	}
+	
 	set_position_velocity(position, velocity) {
 		this.body.position[0] = position[0];
 		this.body.position[1] = position[1];

@@ -1,12 +1,12 @@
 const NetworkEvent = {
-	PING         : "ping",
-	PONG         : "pong",
-	ADD_ALL      : "add_all",
-	ADD_PLAYER   : "add_player",
-	REMOVE_PLAYER: "remove_player",
-	KEYDOWN      : "keydown",
-	KEYUP        : "keyup",
-	POSITION	 : "position"
+	PING         : 1,
+	PONG         : 2,
+	ADD_ALL      : 3,
+	ADD_PLAYER   : 4,
+	REMOVE_PLAYER: 5,
+	KEYDOWN      : 6,
+	KEYUP        : 7,
+	SET_POSITION : 8
 };
 
 class Connection {
@@ -26,45 +26,54 @@ class Connection {
 		this.socket = new WebSocket(websocket_protocol + "kaxball.gigalixirapp.com/ws/?display_name=" + display_name);
 		
 		setTimeout(this.send_ping.bind(this), this.ping_interval);
-		
-		// put this into a new function
-		this.socket.addEventListener("message", (event) => {
-			let payload = JSON.parse(event.data);
-			
-			switch(payload.event) {
-				case NetworkEvent.PONG:
-					console.log("pong received");
-					break;
-				case NetworkEvent.ADD_ALL:
-					this.client_id = payload.self_id;
-					this.add_all(payload);
-					break;
-				case NetworkEvent.ADD_PLAYER:
-					this.add_player(payload);
-					break;
-				case NetworkEvent.REMOVE_PLAYER:		
-					this.remove_player(payload);
-					break;
-				case NetworkEvent.POSITION:
-					this.field_position(payload);
-					break;
-				default:
-					console.log("unknown event", payload);
-					break;
-			}
-		});
+		this.socket.addEventListener("message", this.socket_on_message.bind(this));
+	}
+	
+	socket_on_message(message) {
+		let payload = JSON.parse(message.data);
+		switch(payload.event) {
+			case NetworkEvent.PONG:
+				console.log("pong received");
+				break;
+			case NetworkEvent.ADD_ALL:
+				this.client_id = payload.self_id;
+				this.add_all(payload);
+				break;
+			case NetworkEvent.ADD_PLAYER:
+				this.add_player(payload);
+				break;
+			case NetworkEvent.REMOVE_PLAYER:		
+				this.remove_player(payload);
+				break;
+			case NetworkEvent.SET_POSITION:
+				this.set_position(payload);
+				break;
+			default:
+				console.log("unknown event", payload);
+				break;
+		}
 	}
 	
 	send_keydown(keycode) {
 		if(this.socket.readyState != WebSocket.CLOSED) {
-			let keydown_message = JSON.stringify({event: NetworkEvent.KEYDOWN, keycode: keycode, client_id: this.client_id});
+			let keydown_object = {
+				event: NetworkEvent.KEYDOWN, 
+				keycode: keycode, 
+				client_id: this.client_id
+			};
+			let keydown_message = JSON.stringify(keydown_object);
 			this.socket.send(keydown_message);
 		}
 	}
 	
 	send_keyup(keycode) {
 		if(this.socket.readyState != WebSocket.CLOSED) {
-			let keyup_message = JSON.stringify({event: NetworkEvent.KEYUP, keycode: keycode, client_id: this.client_id});
+			let keyup_object = {
+				event: NetworkEvent.KEYUP, 
+				keycode: keycode, 
+				client_id: this.client_id
+			};
+			let keyup_message = JSON.stringify(keyup_object);
 			this.socket.send(keyup_message);
 		}
 	}
@@ -77,12 +86,14 @@ class Connection {
 		}
 	}
 	
-	field_position(payload) {
-		this.game.ball.set_position([payload.ball.x, payload.ball.y]);
-		for(let i = 0; i < payload.players.length; i++) {
-			let position = [payload.players[i].x, payload.players[i].y];
-			this.connected_objects[payload.players[i].client_id].set_position(position);
-		}
+	set_position(payload) {
+		let ball_position = [payload.ball.x, payload.ball.y];
+		let player_positions = {};
+		for(let i = 0; i < payload.players.length; i++)
+			player_positions[payload.players[i].client_id] = [payload.players[i].x, payload.players[i].y];
+		
+		//this.game.set_field_positions(this.connected_objects, ball_position, player_positions);
+		this.game.set_position_buffers(this.connected_objects, ball_position, player_positions);
 	}
 	
 	add_all(payload) {

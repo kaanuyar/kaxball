@@ -13,14 +13,14 @@ const CollisionMask = {
 };
 
 const NetworkEvent = {
-	PING         : "ping",
-	PONG         : "pong",
-	ADD_ALL      : "add_all",
-	ADD_PLAYER   : "add_player",
-	REMOVE_PLAYER: "remove_player",
-	KEYDOWN      : "keydown",
-	KEYUP        : "keyup",
-	POSITION	 : "position"
+	PING         : 1,
+	PONG         : 2,
+	ADD_ALL      : 3,
+	ADD_PLAYER   : 4,
+	REMOVE_PLAYER: 5,
+	KEYDOWN      : 6,
+	KEYUP        : 7,
+	SET_POSITION : 8
 };
 
 module.exports = {CollisionGroup, CollisionMask, NetworkEvent};

@@ -1,12 +1,12 @@
 const NetworkEvent = {
-	ADD_PLAYER:    "add_player",
-	ADD_ALL:       "add_all",
-	REMOVE_PLAYER: "remove_player",
-	PING:          "ping",
-	PONG:          "pong",
-	KEYDOWN:	   "keydown",
-	KEYUP:		   "keyup",
-	POSITION:      "position"
+	PING         : 1,
+	PONG         : 2,
+	ADD_ALL      : 3,
+	ADD_PLAYER   : 4,
+	REMOVE_PLAYER: 5,
+	KEYDOWN      : 6,
+	KEYUP        : 7,
+	SET_POSITION : 8
 };
 
 class Client {
@@ -21,7 +21,7 @@ class Client {
 	}
 	
 	socket_on_connection() {
-		console.log("display_name:", this.display_name, "entered");
+		console.log(this.display_name, "entered");
 		this.socket.on("message", this.socket_on_message.bind(this));
 		this.socket.on("close", this.socket_on_close.bind(this));
 		
@@ -39,10 +39,10 @@ class Client {
 				this.socket.send(reply);
 				break;
 			case NetworkEvent.KEYDOWN:
-				this.game.get_player_by_client_id(this.client_id).keyboard.keycode_to_button(payload.keycode, 1);
+				this.game.client_keydown_press(this.client_id, payload.keycode);
 				break;
 			case NetworkEvent.KEYUP:
-				this.game.get_player_by_client_id(this.client_id).keyboard.keycode_to_button(payload.keycode, 0);
+				this.game.client_keyup_press(this.client_id, payload.keycode);
 				break;
 			default:
 				console.log("unknown event");
@@ -51,7 +51,7 @@ class Client {
 	}
 	
 	socket_on_close() {
-		console.log("display_name:", this.display_name, "left");
+		console.log(this.display_name, "left");
 		
 		this.game_remove_player();
 		this.client_manager.delete_client(this);
@@ -64,17 +64,29 @@ class Client {
 		for(let client of clients)
 			clients_info.push({client_id: client.client_id, display_name: client.display_name});
 		
-		let add_all_msg = {event: NetworkEvent.ADD_ALL, self_id: this.client_id, players: clients_info};
+		let add_all_msg = {
+			event: NetworkEvent.ADD_ALL, 
+			self_id: this.client_id, 
+			players: clients_info
+		};
 		return JSON.stringify(add_all_msg);
 	}
 	
 	add_player_msg() {
-		let add_player_msg = {event: NetworkEvent.ADD_PLAYER, client_id: this.client_id, display_name: this.display_name};
+		let add_player_msg = {
+			event: NetworkEvent.ADD_PLAYER, 
+			client_id: this.client_id, 
+			display_name: this.display_name
+		};
 		return JSON.stringify(add_player_msg);
 	}
 	
 	remove_player_msg() {
-		let remove_player_msg = {event: NetworkEvent.REMOVE_PLAYER, client_id: this.client_id, display_name: this.display_name};
+		let remove_player_msg = {
+			event: NetworkEvent.REMOVE_PLAYER, 
+			client_id: this.client_id, 
+			display_name: this.display_name
+		};
 		return JSON.stringify(remove_player_msg);
 	}
 	
@@ -84,7 +96,7 @@ class Client {
 	}
 	
 	game_remove_player() {
-		this.game.remove_object(this.game.get_player_by_client_id(this.client_id));
+		this.game.remove_client_id(this.client_id);
 		this.game.restart_field();
 	}
 }

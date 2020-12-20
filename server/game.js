@@ -10,6 +10,7 @@ class Game {
 		this.h = 400;
 		this.zoom = 10;
 		this.last_time = 0;
+		this.frame_count = 0;
 		
 		this.start_positions = [[-15, 0], [15, 0], [-15, 10], [15, 10], [-15, -10], [15, -10]];
 		this.builder = new Builder();
@@ -65,7 +66,9 @@ class Game {
 		
 		this.update(dt);
 		this.world.step(timeStep, dt, maxSubSteps);
-		this.client_manager.dispatch_message(this.position_msg());
+		if(this.frame_count % 2 == 0)
+			this.client_manager.dispatch_message(this.position_msg());
+		this.frame_count += 1;
 	}
 	
 	update(delta_time) {
@@ -87,14 +90,17 @@ class Game {
 		this.ctx.restore();
 	}
 	
-	remove_object(object) {
-		this.objects = this.objects.filter((e) => { return e !== object });
-		this.world.remove_body(object);
+	// CLIENT INTERFACE
+	///////////////////
+	
+	client_keydown_press(client_id, keycode) {
+		let player = this.get_player_by_client_id(client_id);
+		player.keydown_press(keycode);
 	}
 	
-	// implement this - its quick
-	remove_client_id(client_id) {
-		
+	client_keyup_press(client_id, keycode) {
+		let player = this.get_player_by_client_id(client_id);
+		player.keyup_press(keycode);
 	}
 	
 	restart_field() {
@@ -104,6 +110,19 @@ class Game {
 		for(let i = 0; i < player_arr.length; i++) 
 			player_arr[i].set_position_velocity(this.start_positions[i], [0, 0]);
 	}
+	
+	remove_object(object) {
+		this.objects = this.objects.filter((e) => { return e !== object });
+		this.world.remove_body(object);
+	}
+	
+	remove_client_id(client_id) {
+		let object = this.get_player_by_client_id(client_id);
+		this.remove_object(object);
+	}
+	
+	// HELPER FUNCTIONS
+	///////////////////
 	
 	create_player_arr() {
 		let player_arr = [];
@@ -126,13 +145,21 @@ class Game {
 	position_msg() {
 		let players_arr = [];
 		for(let object of this.objects) {
-			if(object.shape.collisionGroup == CollisionGroup.PLAYER)
-				players_arr.push({client_id: object.client_id, x: object.body.interpolatedPosition[0], y: object.body.interpolatedPosition[1]});
+			if(object.shape.collisionGroup == CollisionGroup.PLAYER) {
+				players_arr.push({
+					client_id: object.client_id, 
+					x: +object.body.interpolatedPosition[0].toFixed(4), 
+					y: +object.body.interpolatedPosition[1].toFixed(4)
+				});
+			}
 		}
 		
 		let position_msg = {
-			event: NetworkEvent.POSITION,
-			ball: {x: this.ball.body.interpolatedPosition[0], y: this.ball.body.interpolatedPosition[1]}, 
+			event: NetworkEvent.SET_POSITION,
+			ball: {
+				x: +this.ball.body.interpolatedPosition[0].toFixed(4), 
+				y: +this.ball.body.interpolatedPosition[1].toFixed(4)
+			}, 
 			players: players_arr
 		};
 		
