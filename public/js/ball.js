@@ -4,7 +4,8 @@ class Ball {
 		this.radius = props.radius;
 		
 		this.position_buffer = [];
-		this.update_tick = 30;
+		// change this probably
+		this.update_tick = 15;
 	}
 	
 	update(delta_time) {

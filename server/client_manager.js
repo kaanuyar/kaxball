@@ -4,6 +4,8 @@ class ClientManager {
 	constructor() {
 		this.clients = {};
 		this.index = 0;
+		
+		this.recently_deleted_client = null;
 	}
 	
 	add_client(client) {
@@ -15,8 +17,10 @@ class ClientManager {
 	
 	delete_client(client) {
 		for(let client_id of Object.keys(this.clients)) {
-			if(this.clients[client_id] === client)
+			if(this.clients[client_id] === client) {
+				this.recently_deleted_client = this.clients[client_id];
 				delete this.clients[client_id];
+			}
 		}
 	}
 	

@@ -23,4 +23,15 @@ const NetworkEvent = {
 	SET_POSITION : 8
 };
 
-module.exports = {CollisionGroup, CollisionMask, NetworkEvent};
+const GameEvent = {
+	CREATE_SELF_PLAYER  : 1,
+	CREATE_REMOTE_PLAYER: 2,
+	RESTART_FIELD  		: 3,
+	REMOVE_OBJECT		: 4,
+	SET_POSITION		: 5,
+	REMOVE_CLIENT_ID	: 6,
+	KEYDOWN_PRESS		: 7,
+	KEYUP_PRESS			: 8
+};
+
+module.exports = {CollisionGroup, CollisionMask, NetworkEvent, GameEvent};

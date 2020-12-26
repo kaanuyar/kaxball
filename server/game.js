@@ -1,6 +1,6 @@
 let Builder = require("./builder.js");
 let RemoteKeyboard = require("./remote_keyboard");
-let {CollisionGroup, CollisionMask, NetworkEvent} = require("./enums.js");
+let {CollisionGroup, CollisionMask, NetworkEvent, GameEvent} = require("./enums.js");
 let {performance} = require("perf_hooks");
 
 class Game {
@@ -42,16 +42,52 @@ class Game {
 			this.world.add_body(boundary);
 	}
 	
-	create_remote_player(client_id, display_name) {
-		this.create_player(client_id, display_name, new RemoteKeyboard());
-	}
-	
 	create_player(client_id, display_name, keyboard) {
 		let start_index    = this.create_player_arr().length;
 		let start_position = this.start_positions[start_index];
 		let player = this.builder.create_player(this.materials, client_id, start_position, display_name, keyboard);
 		this.world.add_body(player);
 		this.objects.push(player);
+	}
+	
+	process_messages() {
+		for(let client of this.client_manager.get_all_clients())
+			this.process_client_messsages(client);
+		
+		// flush pending_messages from deleted client
+		if(this.client_manager.recently_deleted_client != null) {
+			let client = this.client_manager.recently_deleted_client;
+			this.process_client_messsages(client);
+			
+			this.client_manager.recently_deleted_client = null;
+		}
+	}
+	
+	process_client_messsages(client) {		
+		while(client.pending_messages.length > 0) {
+			let game_event = client.pending_messages.shift();
+			
+			switch(game_event[0]) {
+				case GameEvent.CREATE_REMOTE_PLAYER: 
+					let remote_player = this.create_remote_player(game_event[1], game_event[2]);
+					break;
+				case GameEvent.REMOVE_CLIENT_ID:
+					this.remove_client_id(game_event[1]);
+					break;
+				case GameEvent.KEYDOWN_PRESS:
+					this.client_keydown_press(game_event[1], game_event[2]);
+					break;
+				case GameEvent.KEYUP_PRESS:
+					this.client_keyup_press(game_event[1], game_event[2]);
+					break;
+				case GameEvent.RESTART_FIELD:
+					this.restart_field();
+					break;
+				default: 
+					console.log("unknown game event");
+					break;
+			}
+		}
 	}
 	
 	// add when theres no player dont loop over probably clearinterval?
@@ -64,9 +100,11 @@ class Game {
 		dt = Math.min(1/10, dt);
 		this.last_time = time;
 		
+		this.process_messages();
 		this.update(dt);
 		this.world.step(timeStep, dt, maxSubSteps);
-		if(this.frame_count % 2 == 0)
+		// 15 tick for now
+		if(this.frame_count % 4 == 0)
 			this.client_manager.dispatch_message(this.position_msg());
 		this.frame_count += 1;
 	}
@@ -90,8 +128,13 @@ class Game {
 		this.ctx.restore();
 	}
 	
+	/////////////////////////////////////////
 	// CLIENT INTERFACE
-	///////////////////
+	/////////////////////////////////////////
+	
+	create_remote_player(client_id, display_name) {
+		this.create_player(client_id, display_name, new RemoteKeyboard());
+	}
 	
 	client_keydown_press(client_id, keycode) {
 		let player = this.get_player_by_client_id(client_id);
@@ -121,8 +164,9 @@ class Game {
 		this.remove_object(object);
 	}
 	
+	/////////////////////////////////////////
 	// HELPER FUNCTIONS
-	///////////////////
+	/////////////////////////////////////////
 	
 	create_player_arr() {
 		let player_arr = [];

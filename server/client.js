@@ -1,21 +1,12 @@
-const NetworkEvent = {
-	PING         : 1,
-	PONG         : 2,
-	ADD_ALL      : 3,
-	ADD_PLAYER   : 4,
-	REMOVE_PLAYER: 5,
-	KEYDOWN      : 6,
-	KEYUP        : 7,
-	SET_POSITION : 8
-};
+let {NetworkEvent, GameEvent} = require("./enums.js");
 
 class Client {
-	constructor(game, client_manager, socket, display_name) {
-		this.game = game;
+	constructor(client_manager, socket, display_name) {
 		this.client_manager = client_manager;
 		this.client_id = this.client_manager.add_client(this);
 		this.socket = socket;
 		this.display_name = display_name;
+		this.pending_messages = [];
 		
 		this.socket_on_connection();
 	}
@@ -39,13 +30,13 @@ class Client {
 				this.socket.send(reply);
 				break;
 			case NetworkEvent.KEYDOWN:
-				this.game.client_keydown_press(this.client_id, payload.keycode);
+				this.pending_messages.push([GameEvent.KEYDOWN_PRESS, this.client_id, payload.keycode]);
 				break;
 			case NetworkEvent.KEYUP:
-				this.game.client_keyup_press(this.client_id, payload.keycode);
+				this.pending_messages.push([GameEvent.KEYUP_PRESS, this.client_id, payload.keycode]);
 				break;
 			default:
-				console.log("unknown event");
+				console.log("unknown network event");
 				break;
 		}	
 	}
@@ -91,13 +82,13 @@ class Client {
 	}
 	
 	game_add_player() {
-		this.game.create_remote_player(this.client_id, this.display_name);
-		this.game.restart_field();
+		this.pending_messages.push([GameEvent.CREATE_REMOTE_PLAYER, this.client_id, this.display_name]);
+		this.pending_messages.push([GameEvent.RESTART_FIELD]);
 	}
 	
 	game_remove_player() {
-		this.game.remove_client_id(this.client_id);
-		this.game.restart_field();
+		this.pending_messages.push([GameEvent.REMOVE_CLIENT_ID, this.client_id]);
+		this.pending_messages.push([GameEvent.RESTART_FIELD]);
 	}
 }
 

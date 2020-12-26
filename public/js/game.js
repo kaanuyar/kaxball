@@ -9,7 +9,7 @@ class Game {
 		this.display_name = display_name;
 		
 		this.start_positions = [[-15, 0], [15, 0], [-15, 10], [15, 10], [-15, -10], [15, -10]];
-		this.connection = new Connection(this.display_name, this);
+		this.connection = new Connection(this.display_name);
 		this.builder = new Builder();
 		this.ball = null;
 		this.objects = [];
@@ -27,24 +27,50 @@ class Game {
 			this.objects.push(plane);
 	}
 	
-	create_self_player(client_id, start_index, display_name, connection) {
-		return this.create_player(client_id, start_index, display_name, new PlayerKeyboard(connection));
-	}
-	
-	create_remote_player(client_id, start_index, display_name) {
-		return this.create_player(client_id, start_index, display_name, new RemoteKeyboard());
-	}
-	
-	create_player(client_id, start_index, display_name, keyboard) {
+	create_player(client_id, display_name, keyboard) {
+		let start_index    = Object.keys(this.connection.connected_objects).length;
 		let start_position = this.start_positions[start_index];
+		
 		let player = this.builder.create_player(client_id, start_position, display_name, keyboard);
 		this.objects.push(player);
 		
 		return player;
 	}
 	
+	process_messages() {
+		while(this.connection.pending_messages.length > 0) {
+			let game_event = this.connection.pending_messages.shift();
+			
+			switch(game_event[0]) {
+				case GameEvent.CREATE_REMOTE_PLAYER: 
+					let remote_player = this.create_remote_player(game_event[1], game_event[2]);
+					this.connection.connected_objects[remote_player.client_id] = remote_player;
+					break;
+				case GameEvent.CREATE_SELF_PLAYER:
+					let self_player = this.create_self_player(game_event[1], game_event[2]);
+					this.connection.connected_objects[self_player.client_id] = self_player;
+					break;
+				case GameEvent.REMOVE_OBJECT:
+					this.remove_object(game_event[1]);
+					delete this.connection.connected_objects[game_event[1].client_id];
+					break;
+				case GameEvent.SET_POSITION:
+					this.set_position_buffers(game_event[1], game_event[2]);
+					break;
+				case GameEvent.RESTART_FIELD:
+					this.restart_field();
+					break;
+				default: 
+					console.log("unknown game event");
+					break;
+			}
+				
+		}
+	}
+	
 	animate(time) {
 		window.requestAnimationFrame(this.animate.bind(this));
+		this.process_messages();
 		this.update();
 		this.render();
 	}
@@ -68,13 +94,20 @@ class Game {
 		this.ctx.restore();
 	}
 	
-	remove_object(object) {
-		this.objects = this.objects.filter((e) => { return e !== object });
-	}
+	/////////////////////////////////////////
 	// CLIENT INTERFACE
-	///////////////////
+	/////////////////////////////////////////
 	
-	restart_field(connected_objects) {
+	create_self_player(client_id, display_name) {
+		return this.create_player(client_id, display_name, new PlayerKeyboard(this.connection));
+	}
+	
+	create_remote_player(client_id, display_name) {
+		return this.create_player(client_id, display_name, new RemoteKeyboard());
+	}
+	
+	restart_field() {
+		let connected_objects = this.connection.connected_objects;
 		this.ball.set_position([0, 0]);
 		let index = 0;
 		for(let client_id of Object.keys(connected_objects)) {
@@ -83,14 +116,8 @@ class Game {
 		}
 	}
 	
-	set_field_positions(connected_objects, ball_position, player_positions) {
-		this.ball.set_position(ball_position);
-		for(let client_id of Object.keys(player_positions)) {
-			connected_objects[client_id].set_position(player_positions[client_id]);
-		}
-	}
-	
-	set_position_buffers(connected_objects, ball_position, player_positions) {
+	set_position_buffers(ball_position, player_positions) {
+		let connected_objects = this.connection.connected_objects;
 		let timestamp = window.performance.now();
 		
 		this.ball.position_buffer.push([timestamp, ball_position[0], ball_position[1]]);
@@ -98,6 +125,10 @@ class Game {
 			let position = player_positions[client_id];
 			connected_objects[client_id].position_buffer.push([timestamp, position[0], position[1]]);
 		}
+	}
+	
+	remove_object(object) {
+		this.objects = this.objects.filter((e) => { return e !== object });
 	}
 }
 	

@@ -1,20 +1,9 @@
-const NetworkEvent = {
-	PING         : 1,
-	PONG         : 2,
-	ADD_ALL      : 3,
-	ADD_PLAYER   : 4,
-	REMOVE_PLAYER: 5,
-	KEYDOWN      : 6,
-	KEYUP        : 7,
-	SET_POSITION : 8
-};
-
 class Connection {
-	constructor(display_name, game) {
-		this.game = game;
+	constructor(display_name) {
 		this.socket = null;
 		
 		this.connected_objects = {};
+		this.pending_messages = [];
 		this.client_id = null;
 		this.ping_interval = 30000;
 		
@@ -49,7 +38,7 @@ class Connection {
 				this.set_position(payload);
 				break;
 			default:
-				console.log("unknown event", payload);
+				console.log("unknown network event", payload);
 				break;
 		}
 	}
@@ -92,8 +81,7 @@ class Connection {
 		for(let i = 0; i < payload.players.length; i++)
 			player_positions[payload.players[i].client_id] = [payload.players[i].x, payload.players[i].y];
 		
-		//this.game.set_field_positions(this.connected_objects, ball_position, player_positions);
-		this.game.set_position_buffers(this.connected_objects, ball_position, player_positions);
+		this.pending_messages.push([GameEvent.SET_POSITION, ball_position, player_positions]);
 	}
 	
 	add_all(payload) {
@@ -101,29 +89,20 @@ class Connection {
 		players.sort((a, b) => a.client_id - b.client_id);
 		
 		for(let i = 0; i < players.length; i++) {
-			let start_index = Object.keys(this.connected_objects).length;
-			let player = null;
 			if(this.client_id == players[i].client_id)
-				player = this.game.create_self_player(this.client_id, start_index, players[i].display_name, this);
+				this.pending_messages.push([GameEvent.CREATE_SELF_PLAYER, this.client_id, players[i].display_name]);
 			else
-				player = this.game.create_remote_player(players[i].client_id, start_index, players[i].display_name);
-			
-			this.connected_objects[players[i].client_id] = player;
+				this.pending_messages.push([GameEvent.CREATE_REMOTE_PLAYER, players[i].client_id, players[i].display_name]);
 		}
 	}
 	
-	add_player(payload) {
-		let start_index = Object.keys(this.connected_objects).length;
-		let player = this.game.create_remote_player(payload.client_id, start_index, payload.display_name);
-		this.connected_objects[payload.client_id] = player;
-		
-		this.game.restart_field(this.connected_objects);
+	add_player(payload) {		
+		this.pending_messages.push([GameEvent.CREATE_REMOTE_PLAYER, payload.client_id, payload.display_name]);
+		this.pending_messages.push([GameEvent.RESTART_FIELD]);
 	}
 	
 	remove_player(payload) {
-		this.game.remove_object(this.connected_objects[payload.client_id]);
-		delete this.connected_objects[payload.client_id];
-		
-		this.game.restart_field(this.connected_objects);
+		this.pending_messages.push([GameEvent.REMOVE_OBJECT, this.connected_objects[payload.client_id]]);
+		this.pending_messages.push([GameEvent.RESTART_FIELD]);
 	}
 }
