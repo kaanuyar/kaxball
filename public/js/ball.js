@@ -5,7 +5,7 @@ class Ball {
 		
 		this.position_buffer = [];
 		// change this probably
-		this.update_tick = 15;
+		this.update_tick = 30;
 	}
 	
 	update(delta_time) {

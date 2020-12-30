@@ -116,7 +116,7 @@ class Game {
 		this.update(dt);
 		this.world.step(timeStep, dt, maxSubSteps);
 		// 15 tick for now
-		if(this.frame_count % 4 == 0)
+		if(this.frame_count % 2 == 0)
 			this.client_manager.dispatch_message(this.position_msg());
 		this.frame_count += 1;
 	}
