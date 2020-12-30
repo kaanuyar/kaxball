@@ -3,6 +3,7 @@ class Player {
 		this.keyboard = props.keyboard;
 		this.name = props.name;
 		this.client_id = props.client_id;
+		this.team_color = props.team_color;
 		
 		this.position = props.start_position.slice();
 		this.radius = props.radius;
@@ -17,20 +18,21 @@ class Player {
 	}
 	
 	render(ctx) {
+		ctx.save();
 		ctx.beginPath();
+		ctx.strokeStyle = this.team_color;
 		let x = this.position[0];
 		let y = this.position[1];
 		let radius = this.radius;
 		ctx.arc(x, y, radius, 0, 2 * Math.PI);
 		ctx.stroke();
 		
-		ctx.save();
+		
 		ctx.scale(1, -1);
 		ctx.globalAlpha = 0.5;
 		ctx.font = "2px Georgia";
 		ctx.textAlign = "center";
 		ctx.fillText(this.name, x, -(y - 2 * radius));
-		ctx.globalAlpha = 1;
 		ctx.restore();
 	}
 	
@@ -62,5 +64,9 @@ class Player {
 	set_position(position) {
 		this.position[0] = position[0];
 		this.position[1] = position[1];
+	}
+	
+	set_team_color(team_color) {
+		this.team_color = team_color;
 	}
 }

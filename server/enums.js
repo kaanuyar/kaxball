@@ -3,13 +3,15 @@ const CollisionGroup = {
 	BALL    : Math.pow(2, 2),
 	PLANE   : Math.pow(2, 3),
 	BOUNDARY: Math.pow(2, 4),
+	BOX		: Math.pow(2, 5)
 };
 
 const CollisionMask = {
 	PLAYER  : CollisionGroup.PLAYER | CollisionGroup.BALL | CollisionGroup.BOUNDARY,
-	BALL    : CollisionGroup.PLAYER | CollisionGroup.PLANE,
+	BALL    : CollisionGroup.PLAYER | CollisionGroup.PLANE | CollisionGroup.BOX,
 	PLANE   : CollisionGroup.BALL,
-	BOUNDARY: CollisionGroup.PLAYER
+	BOUNDARY: CollisionGroup.PLAYER,
+	BOX		: CollisionGroup.BALL
 };
 
 const NetworkEvent = {
@@ -20,7 +22,8 @@ const NetworkEvent = {
 	REMOVE_PLAYER: 5,
 	KEYDOWN      : 6,
 	KEYUP        : 7,
-	SET_POSITION : 8
+	SET_POSITION : 8,
+	GOAL		 : 9
 };
 
 const GameEvent = {

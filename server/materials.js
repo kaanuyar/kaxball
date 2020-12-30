@@ -6,6 +6,7 @@ class Materials {
 		this.plane_material    = new p2.Material();
 		this.ball_material     = new p2.Material();
 		this.boundary_material = new p2.Material();
+		this.box_material	   = new p2.Material();
 	}
 	
 	load_contact_materials(world) {
@@ -33,11 +34,18 @@ class Materials {
 			stiffness: 5e2, // for 30 tick
 		});
 		
+		let ball_box_contact = new p2.ContactMaterial(this.ball_material, this.box_material, {
+			restitution: 0.9,
+			//stiffness: 1e3, // for 60 tick
+			stiffness: 5e2, // for 30 tick
+		});
+		
 		world.set_default_contact_material(world_default_contact);
 		world.add_contact_material(player_player_contact);
 		world.add_contact_material(player_ball_contact);
 		world.add_contact_material(player_boundary_contact);
 		world.add_contact_material(ball_plane_contact);
+		world.add_contact_material(ball_box_contact);
 	}
 }
 

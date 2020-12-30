@@ -40,6 +40,12 @@ class Game {
 		let boundaries = this.builder.create_boundaries(this.materials);
 		for(let boundary of boundaries)
 			this.world.add_body(boundary);
+		
+		let boxes = this.builder.create_boxes(this.materials, this.world);
+		for(let box of boxes) {
+			this.world.add_body(box);
+			this.objects.push(box);
+		}
 	}
 	
 	create_player(client_id, display_name, keyboard) {
@@ -54,12 +60,18 @@ class Game {
 		for(let client of this.client_manager.get_all_clients())
 			this.process_client_messsages(client);
 		
-		// flush pending_messages from deleted client
 		if(this.client_manager.recently_deleted_client != null) {
-			let client = this.client_manager.recently_deleted_client;
-			this.process_client_messsages(client);
-			
+			this.process_client_messsages(this.client_manager.recently_deleted_client);
 			this.client_manager.recently_deleted_client = null;
+		}
+		
+		// maybe change box class all together? inheritance?
+		for(let box of this.create_boxes_arr()) {
+			let goal_occurred = box.goal_occurred();
+			if(goal_occurred) {
+				this.restart_field();
+				this.client_manager.dispatch_message(this.goal_msg(goal_occurred));
+			}
 		}
 	}
 	
@@ -69,7 +81,7 @@ class Game {
 			
 			switch(game_event[0]) {
 				case GameEvent.CREATE_REMOTE_PLAYER: 
-					let remote_player = this.create_remote_player(game_event[1], game_event[2]);
+					this.create_remote_player(game_event[1], game_event[2]);
 					break;
 				case GameEvent.REMOVE_CLIENT_ID:
 					this.remove_client_id(game_event[1]);
@@ -179,6 +191,15 @@ class Game {
 		return player_arr;
 	}
 	
+	create_boxes_arr() {
+		let boxes_arr = [];
+		for(let object of this.objects) {
+			if(object.shape.collisionGroup == CollisionGroup.BOX)
+				boxes_arr.push(object);
+		}
+		return boxes_arr;
+	}
+	
 	get_player_by_client_id(client_id) {
 		for(let object of this.objects) {
 			if(object.shape.collisionGroup == CollisionGroup.PLAYER && object.client_id == client_id)
@@ -208,6 +229,11 @@ class Game {
 		};
 		
 		return JSON.stringify(position_msg);
+	}
+	
+	goal_msg(team) {
+		let goal_msg = {event: NetworkEvent.GOAL, team: team};
+		return JSON.stringify(goal_msg);
 	}
 }
 

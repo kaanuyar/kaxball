@@ -38,10 +38,12 @@ class Plane {
 		ctx.beginPath();
 		ctx.translate(x, y);
 		ctx.rotate(angle);
-		ctx.translate(-x, -y);
+		//ctx.translate(-x, -y);
 		
-		ctx.moveTo(x - (length / 2), y);
-		ctx.lineTo(x + (length / 2), y);
+		//ctx.moveTo(x - (length / 2), y);
+		ctx.moveTo(-(length / 2), 0);
+		//ctx.lineTo(x + (length / 2), y);
+		ctx.lineTo( (length / 2), 0);
 		ctx.stroke();
 		ctx.restore();
 	}

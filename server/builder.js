@@ -3,6 +3,7 @@ let Materials = require("./materials.js");
 let Plane = require("./plane.js");
 let Player = require("./player.js");
 let World = require("./world.js");
+let Box = require("./box.js");
 let {CollisionGroup, CollisionMask, NetworkEvent} = require("./enums.js");
 
 class Builder {
@@ -55,8 +56,10 @@ class Builder {
 	}
 	
 	create_planes(materials) {
-		let planes_pos   = [[25,0], [-25,-0], [0,-15], [0, 15]];
-		let planes_angle = [Math.PI/2, 3*Math.PI/2, 0, Math.PI];
+		//let planes_pos   = [[25,0], [-25,-0], [0,-15], [0, 15]];
+		let planes_pos   = [[0,-15], [0, 15]];
+		//let planes_angle = [Math.PI/2, 3*Math.PI/2, 0, Math.PI];
+		let planes_angle = [0, Math.PI];
 		let planes_arr   = [];
 		
 		for(let i = 0; i < planes_pos.length; i++) {
@@ -90,6 +93,31 @@ class Builder {
 		}
 		
 		return boundaries_arr;
+	}
+	
+	create_boxes(materials, world) {
+		//let boxes_pos = [[25.5, 0], [-25.5, 0]];
+		let boxes_pos = [[30, 0], [-30, 0], [27.5, 10], [27.5, -10], [-27.5, 10], [-27.5, -10]];
+		let boxes_width = [2, 2, 5, 5, 5, 5];
+		let boxes_sensor = [true, true, false, false, false, false];
+		let boxes_arr = [];
+		
+		for(let i = 0; i < boxes_pos.length; i++) {
+			let box = new Box({
+				sensor: boxes_sensor[i],
+				start_position: boxes_pos[i],
+				angle: 0,
+				width: boxes_width[i],
+				height: 10,
+				world: world,
+				material: materials.box_material,
+				collision_group: CollisionGroup.BOX,
+				collision_mask: CollisionMask.BOX
+			});
+			boxes_arr.push(box);
+		}
+		
+		return boxes_arr;
 	}
 }
 

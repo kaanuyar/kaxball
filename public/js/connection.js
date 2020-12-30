@@ -37,6 +37,9 @@ class Connection {
 			case NetworkEvent.SET_POSITION:
 				this.set_position(payload);
 				break;
+			case NetworkEvent.GOAL:
+				this.pending_messages.push([GameEvent.GOAL, payload.team]);
+				break;
 			default:
 				console.log("unknown network event", payload);
 				break;
@@ -102,7 +105,9 @@ class Connection {
 	}
 	
 	remove_player(payload) {
-		this.pending_messages.push([GameEvent.REMOVE_OBJECT, this.connected_objects[payload.client_id]]);
+		//console.log(this.connected_objects[payload.client_id]);
+		//this.pending_messages.push([GameEvent.REMOVE_OBJECT, this.connected_objects[payload.client_id]]);
+		this.pending_messages.push([GameEvent.REMOVE_CLIENT_ID, payload.client_id]);
 		this.pending_messages.push([GameEvent.RESTART_FIELD]);
 	}
 }

@@ -6,7 +6,8 @@ const NetworkEvent = {
 	REMOVE_PLAYER: 5,
 	KEYDOWN      : 6,
 	KEYUP        : 7,
-	SET_POSITION : 8
+	SET_POSITION : 8,
+	GOAL		 : 9
 };
 
 const GameEvent = {
@@ -14,5 +15,7 @@ const GameEvent = {
 	CREATE_REMOTE_PLAYER: 2,
 	RESTART_FIELD  		: 3,
 	REMOVE_OBJECT		: 4,
-	SET_POSITION		: 5
+	SET_POSITION		: 5,
+	REMOVE_CLIENT_ID	: 6,
+	GOAL				: 7
 };
