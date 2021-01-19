@@ -1,4 +1,4 @@
-class PlayerKeyboard {
+class Keyboard {
 	constructor(connection) {
 		this.connection = connection;
 		this.buttons = {};
@@ -8,28 +8,29 @@ class PlayerKeyboard {
 		document.onkeyup   = (event) => this.onkeyup(event);
 	}
 	
-	init_buttons() {
-		this.buttons.space  = 0;
-		this.buttons.up 	= 0;
-		this.buttons.down 	= 0;
-		this.buttons.right 	= 0;
-		this.buttons.left 	= 0;
-	}
-	
 	onkeydown(event) {
 		if(event.repeat)
 			return;
 		
-		this.connection.send_keydown(event.keyCode);
-		//this.keycode_to_button(event.keyCode, 1);
+		if(this.connection.client_id != null)
+			this.connection.send_keydown(event.keyCode);
 	}
 	
 	onkeyup(event) {
 		if(event.repeat)
 			return;
 		
-		this.connection.send_keyup(event.keyCode);
-		//this.keycode_to_button(event.keyCode, 0);
+		if(this.connection.client_id != null)
+			this.connection.send_keyup(event.keyCode);
+	}
+	
+	// not used right now
+	init_buttons() {
+		this.buttons.space  = 0;
+		this.buttons.up 	= 0;
+		this.buttons.down 	= 0;
+		this.buttons.right 	= 0;
+		this.buttons.left 	= 0;
 	}
 	
 	keycode_to_button(keycode, value) {

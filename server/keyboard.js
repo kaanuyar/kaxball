@@ -1,4 +1,4 @@
-class RemoteKeyboard {
+class Keyboard {
 	constructor() {
 		this.buttons = {};
 		this.init_buttons();
@@ -24,4 +24,4 @@ class RemoteKeyboard {
 	}
 }
 
-module.exports = RemoteKeyboard;
+module.exports = Keyboard;

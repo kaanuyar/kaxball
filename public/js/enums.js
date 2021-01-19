@@ -1,3 +1,12 @@
+const CollisionGroup = {
+	PLAYER  : Math.pow(2, 1),
+	BALL    : Math.pow(2, 2),
+	PLANE   : Math.pow(2, 3),
+	BOUNDARY: Math.pow(2, 4),
+	BOX		: Math.pow(2, 5),
+	NONE	: Math.pow(2, 6)
+};
+
 const NetworkEvent = {
 	PING         : 1,
 	PONG         : 2,
@@ -8,14 +17,4 @@ const NetworkEvent = {
 	KEYUP        : 7,
 	SET_POSITION : 8,
 	GOAL		 : 9
-};
-
-const GameEvent = {
-	CREATE_SELF_PLAYER  : 1,
-	CREATE_REMOTE_PLAYER: 2,
-	RESTART_FIELD  		: 3,
-	REMOVE_OBJECT		: 4,
-	SET_POSITION		: 5,
-	REMOVE_CLIENT_ID	: 6,
-	GOAL				: 7
 };

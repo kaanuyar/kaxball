@@ -1,4 +1,4 @@
-let {NetworkEvent, GameEvent} = require("./enums.js");
+let {NetworkEvent} = require("./enums.js");
 
 class Client {
 	constructor(client_manager, socket, display_name) {
@@ -16,7 +16,7 @@ class Client {
 		this.socket.on("message", this.socket_on_message.bind(this));
 		this.socket.on("close", this.socket_on_close.bind(this));
 		
-		this.game_add_player();
+		this.pending_messages.push(JSON.parse(this.add_player_msg()));
 		this.socket.send(this.add_all_msg());
 		this.client_manager.dispatch_message(this.add_player_msg(), this);
 	}
@@ -24,27 +24,19 @@ class Client {
 	socket_on_message(message) {
 		let payload = JSON.parse(message);
 		
-		switch(payload.event) {
-			case NetworkEvent.PING:
-				let reply = JSON.stringify({event: NetworkEvent.PONG});
-				this.socket.send(reply);
-				break;
-			case NetworkEvent.KEYDOWN:
-				this.pending_messages.push([GameEvent.KEYDOWN_PRESS, this.client_id, payload.keycode]);
-				break;
-			case NetworkEvent.KEYUP:
-				this.pending_messages.push([GameEvent.KEYUP_PRESS, this.client_id, payload.keycode]);
-				break;
-			default:
-				console.log("unknown network event");
-				break;
-		}	
+		if(payload.event == NetworkEvent.PING) {
+			let reply = JSON.stringify({event: NetworkEvent.PONG});
+			this.socket.send(reply);
+			return;
+		}
+		
+		this.pending_messages.push(payload);
 	}
 	
 	socket_on_close() {
 		console.log(this.display_name, "left");
 		
-		this.game_remove_player();
+		this.pending_messages.push(JSON.parse(this.remove_player_msg()));
 		this.client_manager.delete_client(this);
 		this.client_manager.dispatch_message(this.remove_player_msg(), this);
 	}
@@ -79,16 +71,6 @@ class Client {
 			display_name: this.display_name
 		};
 		return JSON.stringify(remove_player_msg);
-	}
-	
-	game_add_player() {
-		this.pending_messages.push([GameEvent.CREATE_REMOTE_PLAYER, this.client_id, this.display_name]);
-		this.pending_messages.push([GameEvent.RESTART_FIELD]);
-	}
-	
-	game_remove_player() {
-		this.pending_messages.push([GameEvent.REMOVE_CLIENT_ID, this.client_id]);
-		this.pending_messages.push([GameEvent.RESTART_FIELD]);
 	}
 }
 

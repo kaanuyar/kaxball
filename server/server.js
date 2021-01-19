@@ -4,7 +4,7 @@ let url 		  = require("url");
 let WebSocket 	  = require("ws");
 let Client 		  = require("./client.js");
 let ClientManager = require("./client_manager.js");
-let Game 		  = require("./game.js");
+let GameLoop 	  = require("./game_loop.js");
 
 class Server {
 	constructor() {
@@ -12,7 +12,7 @@ class Server {
 		this.server 		= http.createServer(this.app);
 		this.wss 			= new WebSocket.Server({server: this.server, path: "/ws/"});
 		this.client_manager = new ClientManager();
-		this.game 			= new Game(this.client_manager);
+		this.game_loop 		= new GameLoop(this.client_manager);
 		
 		this.init();
 	}
@@ -21,7 +21,7 @@ class Server {
 		this.app.use("/", express.static("public"));
 		this.wss.on("connection", this.socket_on_connection.bind(this));
 
-		this.server.listen(4000);
+		this.server.listen(80);
 	}
 	
 	socket_on_connection(socket, req) {

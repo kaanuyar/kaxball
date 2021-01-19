@@ -4,9 +4,14 @@ let Plane = require("./plane.js");
 let Player = require("./player.js");
 let World = require("./world.js");
 let Box = require("./box.js");
-let {CollisionGroup, CollisionMask, NetworkEvent} = require("./enums.js");
+let Goalpost = require("./goalpost.js");
+let {CollisionGroup, CollisionMask} = require("./enums.js");
 
 class Builder {
+	constructor() {
+		this.player_start_positions = [[-15, 0], [15, 0], [-15, 10], [15, 10], [-15, -10], [15, -10]];
+	}
+	
 	create_world() {
 		let world = new World({
 			gravity: [0, 0]
@@ -21,7 +26,9 @@ class Builder {
 		return materials;
 	}
 	
-	create_player(materials, client_id, start_position, display_name, keyboard) {
+	create_player(materials, client_id, start_index, display_name, keyboard) {
+		let start_position = this.player_start_positions[start_index];
+		
 		let player = new Player({
 			name: display_name,
 			keyboard: keyboard,
@@ -55,27 +62,6 @@ class Builder {
 		return ball;
 	}
 	
-	create_planes(materials) {
-		//let planes_pos   = [[25,0], [-25,-0], [0,-15], [0, 15]];
-		let planes_pos   = [[0,-15], [0, 15]];
-		//let planes_angle = [Math.PI/2, 3*Math.PI/2, 0, Math.PI];
-		let planes_angle = [0, Math.PI];
-		let planes_arr   = [];
-		
-		for(let i = 0; i < planes_pos.length; i++) {
-			let plane = new Plane({
-				start_position: planes_pos[i],
-				angle: planes_angle[i],
-				material: materials.plane_material,
-				collision_group: CollisionGroup.PLANE,
-				collision_mask: CollisionMask.PLANE
-			});
-			planes_arr.push(plane);
-		}
-		
-		return planes_arr;
-	}
-	
 	create_boundaries(materials) {
 		let boundariesPos   = [[30,0], [-30,-0], [0,-20], [0, 20]];
 		let boundariesAngle = [Math.PI/2, 3*Math.PI/2, 0, Math.PI];
@@ -95,29 +81,62 @@ class Builder {
 		return boundaries_arr;
 	}
 	
-	create_boxes(materials, world) {
-		//let boxes_pos = [[25.5, 0], [-25.5, 0]];
-		let boxes_pos = [[30, 0], [-30, 0], [27.5, 10], [27.5, -10], [-27.5, 10], [-27.5, -10]];
-		let boxes_width = [2, 2, 5, 5, 5, 5];
-		let boxes_sensor = [true, true, false, false, false, false];
+	create_boxes(materials) {
+		let boxes_pos = [[28, 10], [28, -10], [-28, 10], [-28, -10], [0, 18], [0, -18]];
+		let boxes_width = [6, 6, 6, 6, 62, 62];
+		let boxes_height = [10, 10, 10, 10, 6, 6];
 		let boxes_arr = [];
 		
 		for(let i = 0; i < boxes_pos.length; i++) {
-			let box = new Box({
-				sensor: boxes_sensor[i],
+			let box = this.create_box({
 				start_position: boxes_pos[i],
 				angle: 0,
 				width: boxes_width[i],
-				height: 10,
-				world: world,
-				material: materials.box_material,
-				collision_group: CollisionGroup.BOX,
-				collision_mask: CollisionMask.BOX
+				height: boxes_height[i],
+				material: materials.box_material
 			});
 			boxes_arr.push(box);
 		}
 		
 		return boxes_arr;
+	}
+	
+	create_box(props) {
+		let box = new Box({
+			start_position: props.start_position,
+			angle: props.angle,
+			width: props.width,
+			height: props.height,
+			material: props.material,
+			collision_group: CollisionGroup.BOX,
+			collision_mask: CollisionMask.BOX
+		});
+		
+		return box;
+	}
+	
+	create_goalposts(materials, world) {
+		let goalposts_pos = [[30, 0], [-30, 0]];
+		let goalposts_width = [2, 2];
+		let goalposts_arr = [];
+		
+		for(let i = 0; i < goalposts_pos.length; i++) {
+			let box = this.create_box({
+				start_position: goalposts_pos[i],
+				angle: 0,
+				width: goalposts_width[i],
+				height: 10,
+				material: materials.box_material
+			});
+			
+			let goalpost = new Goalpost({
+				box: box,
+				world: world
+			});
+			goalposts_arr.push(goalpost);
+		}
+		
+		return goalposts_arr;
 	}
 }
 

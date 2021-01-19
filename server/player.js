@@ -1,5 +1,6 @@
 let p2 = require("p2");
 
+// after everything is over maybe create a base circle class that player and ball will have
 class Player {
 	constructor(props) {
 		this.keyboard = props.keyboard;
@@ -33,25 +34,6 @@ class Player {
 	update(delta_time) {
 		this.apply_force(delta_time);
 		this.constrain_velocity(this.max_velocity);
-		//console.log(this.body.velocity[0], this.body.velocity[1]);
-	}
-	
-	render(ctx) {
-		ctx.beginPath();
-		let x = this.body.interpolatedPosition[0];
-		let y = this.body.interpolatedPosition[1];
-		let radius = this.shape.radius;
-		ctx.arc(x, y, radius, 0, 2 * Math.PI);
-		ctx.stroke();
-		
-		ctx.save();
-		ctx.scale(1, -1);
-		ctx.globalAlpha = 0.5;
-		ctx.font = "2px Georgia";
-		ctx.textAlign = "center";
-		ctx.fillText(this.name, x, -(y - 2 * this.shape.radius));
-		ctx.globalAlpha = 1;
-		ctx.restore();
 	}
 	
 	keydown_press(keycode) {

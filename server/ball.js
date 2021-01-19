@@ -1,6 +1,7 @@
 let p2 = require("p2");
 let {CollisionGroup, CollisionMask, NetworkEvent} = require("./enums.js");
 
+// after everything is over maybe create a base circle class that player and ball will have
 class Ball {
 	constructor(props) {
 		this.shape = null;
@@ -38,15 +39,6 @@ class Ball {
 	update(delta_time) {
 		if(this.player_collide && this.player_obj.kick_available())
 			this.kick(delta_time);
-	}
-	
-	render(ctx) {
-		ctx.beginPath();
-		let x = this.body.interpolatedPosition[0];
-		let y = this.body.interpolatedPosition[1];
-		let radius = this.shape.radius;
-		ctx.arc(x, y, radius, 0, 2 * Math.PI);
-		ctx.stroke();
 	}
 	
 	set_position_velocity(position, velocity) {

@@ -2,6 +2,7 @@ class Plane {
 	constructor(props) {
 		this.position = props.start_position.slice();
 		this.angle = props.angle;
+		this.collision_group = props.collision_group;
 		this.length = 60;
 	}
 	
@@ -19,10 +20,7 @@ class Plane {
 		ctx.beginPath();
 		ctx.translate(x, y);
 		ctx.rotate(angle);
-		//ctx.translate(-x, -y);
 		
-		//ctx.moveTo(x - (length / 2), y);
-		//ctx.lineTo(x + (length / 2), y);
 		ctx.moveTo(-(length / 2), 0);
 		ctx.lineTo( (length / 2), 0);
 		ctx.stroke();

@@ -6,14 +6,15 @@
 	<script src="js/enums.js"></script>
 	<script src="js/connection.js"></script>
 	<script src="js/builder.js"></script>
-	<script src="js/game.js"></script>
-	<script src="js/player_keyboard.js"></script>
-	<script src="js/remote_keyboard.js"></script>
+	<script src="js/game_loop.js"></script>
+	<script src="js/field.js"></script>
+	<script src="js/keyboard.js"></script>
 	<script src="js/player.js"></script>
 	<script src="js/ball.js"></script>
 	<script src="js/plane.js"></script>
 	<script src="js/box.js"></script>
 	<script src="js/scoreboard.js"></script>
+	<script src="js/field_manager.js"></script>
 	
   </head>
   <body>
@@ -38,7 +39,7 @@
 			const my_div = document.getElementById("mydiv");
 			my_div.style.display = "none";
 			
-			game = new Game(canvas, nickname);
+			game = new GameLoop(canvas, nickname);
 		}
     </script>
   </body>

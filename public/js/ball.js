@@ -2,10 +2,10 @@ class Ball {
 	constructor(props) {
 		this.position = props.start_position.slice();
 		this.radius = props.radius;
+		this.collision_group = props.collision_group;
 		
 		this.position_buffer = [];
-		// change this probably
-		this.update_tick = 30;
+		this.update_tick = 20;
 	}
 	
 	update(delta_time) {

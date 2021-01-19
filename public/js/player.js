@@ -1,16 +1,15 @@
 class Player {
 	constructor(props) {
-		this.keyboard = props.keyboard;
 		this.name = props.name;
 		this.client_id = props.client_id;
 		this.team_color = props.team_color;
+		this.collision_group = props.collision_group;
 		
 		this.position = props.start_position.slice();
 		this.radius = props.radius;
 		
 		this.position_buffer = [];
-		// change this probably
-		this.update_tick = 30;
+		this.update_tick = 20;
 	}
 	
 	update(delta_time) {
@@ -26,7 +25,6 @@ class Player {
 		let radius = this.radius;
 		ctx.arc(x, y, radius, 0, 2 * Math.PI);
 		ctx.stroke();
-		
 		
 		ctx.scale(1, -1);
 		ctx.globalAlpha = 0.5;

@@ -4,6 +4,7 @@ class Box {
 		this.angle = props.angle;
 		this.width = props.width;
 		this.height = props.height;
+		this.collision_group = props.collision_group;
 	}
 	
 	update(delta_time) {

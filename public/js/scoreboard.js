@@ -1,7 +1,7 @@
 class Scoreboard {
-	constructor(x, y) {
-		this.x = x;
-		this.y = y;
+	constructor(props) {
+		this.position = props.position.slice();
+		this.collision_group = props.collision_group;
 		
 		this.red_score = 0;
 		this.blue_score = 0;
@@ -19,7 +19,7 @@ class Scoreboard {
 		ctx.globalAlpha = 0.5;
 		ctx.font = "2px Georgia";
 		ctx.textAlign = "center";
-		ctx.fillText(scoreboard_text, this.x, -this.y);
+		ctx.fillText(scoreboard_text, this.position[0], -this.position[1]);
 		ctx.restore();
 	} 
 	

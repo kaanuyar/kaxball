@@ -27,26 +27,6 @@ class Plane {
 	update(delta_time) {
 		
 	}
-	
-	render(ctx) {
-		let x = this.body.interpolatedPosition[0];
-		let y = this.body.interpolatedPosition[1];
-		let angle = this.body.angle;
-		let length = this.length;
-		
-		ctx.save();
-		ctx.beginPath();
-		ctx.translate(x, y);
-		ctx.rotate(angle);
-		//ctx.translate(-x, -y);
-		
-		//ctx.moveTo(x - (length / 2), y);
-		ctx.moveTo(-(length / 2), 0);
-		//ctx.lineTo(x + (length / 2), y);
-		ctx.lineTo( (length / 2), 0);
-		ctx.stroke();
-		ctx.restore();
-	}
 }
 
 module.exports = Plane;
