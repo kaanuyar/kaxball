@@ -25,7 +25,7 @@ class FieldManager {
 		}
 	}
 	
-	static create_position_msg(field) {
+	static create_position_msg(field) {		
 		let players_arr = field.create_player_arr();
 		let players = [];
 		for(let player of players_arr) {
