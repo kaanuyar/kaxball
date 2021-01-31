@@ -7,9 +7,10 @@ class Player {
 		
 		this.position = props.start_position.slice();
 		this.radius = props.radius;
+		this.sensor_radius = props.sensor_radius;
 		
 		this.position_buffer = [];
-		this.update_tick = 20;
+		this.update_tick = 30;
 	}
 	
 	update(delta_time) {
@@ -17,13 +18,22 @@ class Player {
 	}
 	
 	render(ctx) {
-		ctx.save();
-		ctx.beginPath();
-		ctx.strokeStyle = this.team_color;
 		let x = this.position[0];
 		let y = this.position[1];
 		let radius = this.radius;
+		let sensor_radius = this.sensor_radius;
+		
+		ctx.save();
+		ctx.beginPath();
+		ctx.lineWidth = 0.35;
+		ctx.strokeStyle = this.team_color;
 		ctx.arc(x, y, radius, 0, 2 * Math.PI);
+		ctx.stroke();
+		
+		ctx.beginPath();
+		ctx.globalAlpha = 0.05;
+		ctx.strokeStyle = "black";
+		ctx.arc(x, y, sensor_radius, 0, 2 * Math.PI);
 		ctx.stroke();
 		
 		ctx.scale(1, -1);

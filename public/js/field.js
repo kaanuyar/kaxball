@@ -43,18 +43,6 @@ class Field {
 		}
 	}
 	
-	// acayip kotu lag var, alternatif method dene pls
-	/*set_position_buffers(ball_position, player_positions) {
-		let player_map = this.create_player_map();
-		let timestamp = window.performance.now();
-		
-		this.ball.position_buffer.push([timestamp, ball_position[0], ball_position[1]]);
-		for(let client_id of Object.keys(player_positions)) {
-			let position = player_positions[client_id];
-			player_map[client_id].position_buffer.push([timestamp, position[0], position[1]]);
-		}
-	}*/
-	
 	set_position_buffers(timestamp, ball_position, player_positions) {
 		let player_map = this.create_player_map();
 		

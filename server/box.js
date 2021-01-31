@@ -1,4 +1,5 @@
 let p2 = require("p2");
+let {CollisionGroup, CollisionMask} = require("./enums.js");
 
 class Box {
 	constructor(props) {
@@ -12,7 +13,9 @@ class Box {
 		this.shape = new p2.Box({
 			material: props.material,
 			width: props.width,
-			height: props.height
+			height: props.height,
+			collisionGroup: CollisionGroup.BOX,
+			collisionMask: CollisionMask.BOX
         });
         this.body = new p2.Body({
 			position: props.start_position,
@@ -20,9 +23,6 @@ class Box {
 			type: p2.Body.STATIC
         });
 		this.body.addShape(this.shape);
-		
-		this.shape.collisionGroup = props.collision_group;
-		this.shape.collisionMask  = props.collision_mask;
 	}
 	
 	update(delta_time) {

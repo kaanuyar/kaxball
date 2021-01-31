@@ -1,17 +1,19 @@
 let p2 = require("p2");
+let {CollisionGroup, CollisionMask} = require("./enums.js");
 
 class Plane {
 	constructor(props) {
 		this.shape = null;
 		this.body = null;
-		this.length = 60;
 		
 		this.init(props);
 	}
 	
 	init(props) {
 		this.shape = new p2.Plane({
-			material: props.material
+			material: props.material,
+			collisionGroup: CollisionGroup.BOUNDARY,
+			collisionMask: CollisionMask.BOUNDARY
 		});
 		this.body = new p2.Body({
 			position: props.start_position,
@@ -19,9 +21,6 @@ class Plane {
 			type: p2.Body.STATIC
 		});
 		this.body.addShape(this.shape);
-		
-		this.shape.collisionGroup = props.collision_group;
-		this.shape.collisionMask  = props.collision_mask;
 	}
 	
 	update(delta_time) {

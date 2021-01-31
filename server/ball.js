@@ -1,7 +1,6 @@
 let p2 = require("p2");
-let {CollisionGroup, CollisionMask, NetworkEvent} = require("./enums.js");
+let {CollisionGroup, CollisionMask} = require("./enums.js");
 
-// after everything is over maybe create a base circle class that player and ball will have
 class Ball {
 	constructor(props) {
 		this.shape = null;
@@ -9,9 +8,7 @@ class Ball {
 		
 		this.kick_force = 1500;
 		this.kick_possible = false;
-		
 		this.player_obj = null;
-		this.player_collide = false;
 		
 		this.init(props);
 	}
@@ -19,7 +16,9 @@ class Ball {
 	init(props) {
 		this.shape = new p2.Circle({ 
 			radius: props.radius,
-			material: props.material
+			material: props.material,
+			collisionGroup: CollisionGroup.BALL,
+			collisionMask: CollisionMask.BALL
 		});
 		this.body = new p2.Body({
 			mass: props.mass, 
@@ -29,15 +28,12 @@ class Ball {
 		});
 		this.body.addShape(this.shape);
 		
-		this.shape.collisionGroup = props.collision_group;
-		this.shape.collisionMask  = props.collision_mask;
-		
 		props.world.register_begin_contact(this.begin_contact_callback.bind(this), this);
 		props.world.register_end_contact(this.end_contact_callback.bind(this), this);
 	}
 	
 	update(delta_time) {
-		if(this.player_collide && this.player_obj.kick_available())
+		if(this.kick_possible && this.player_obj.kick_available())
 			this.kick(delta_time);
 	}
 	
@@ -50,27 +46,21 @@ class Ball {
 	}
 	
 	begin_contact_callback(evt) {
-		if(evt.bodyA.shapes[0].collisionGroup == CollisionGroup.PLAYER || 
-		   evt.bodyB.shapes[0].collisionGroup == CollisionGroup.PLAYER) {
+		if(evt.shapeA.collisionGroup == CollisionGroup.SENSOR || 
+		   evt.shapeB.collisionGroup == CollisionGroup.SENSOR) {
 			this.player_obj = evt.objA == this ? evt.objB : evt.objA;
-			this.player_collide = true;
 			this.kick_possible = true;
 		}
 	}
 	
 	end_contact_callback(evt) {		
-		if(evt.bodyA.shapes[0].collisionGroup == CollisionGroup.PLAYER || 
-		   evt.bodyB.shapes[0].collisionGroup == CollisionGroup.PLAYER) {
-			this.player_collide = false;
+		if(evt.shapeA.collisionGroup == CollisionGroup.SENSOR || 
+		   evt.shapeB.collisionGroup == CollisionGroup.SENSOR) {
 			this.kick_possible = false;
 		}
 	}
 	
-	kick(delta_time) {
-		if(!this.kick_possible)
-			return;
-		
-		//console.log("kick func entered");
+	kick(delta_time) {		
 		let p1 = this.player_obj.body;
 		let p2 = this.body;
 		
@@ -80,6 +70,7 @@ class Ball {
 
 		//this.body.applyForce([Math.cos(angle) * this.kick_force, Math.sin(angle) * this.kick_force]);
 		let force = this.kick_force * delta_time;
+		//console.log(force, delta_time);
 		this.body.applyImpulse([Math.cos(angle) * force, Math.sin(angle) * force]);	
 		this.kick_possible = false;
 		//this.body.force[0] = Math.cos(angle) * this.kick_force;

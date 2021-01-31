@@ -18,3 +18,9 @@ const NetworkEvent = {
 	SET_POSITION : 8,
 	GOAL		 : 9
 };
+
+const GoalEvent = {
+	NONE		:  0,
+	RED_TEAM	: -1,
+	BLUE_TEAM	:  1
+}

@@ -9,7 +9,7 @@ class GameLoop {
 		
 		this.update_rate = 1/60;
 		this.step_rate = 1/30;
-		this.message_rate = 1/20;
+		this.message_rate = 1/30;
 		
 		this.last_time = 0;
 		this.frame_count = 0;
@@ -17,8 +17,10 @@ class GameLoop {
 		setInterval(this.loop.bind(this), 1000 * this.update_rate);
 	}
 	
-	// when theres no player dont loop over probably clearinterval
 	loop() {		
+		if(Object.keys(this.client_manager.clients).length == 0)
+			return;
+		
 		let time = performance.now();
 		let timeStep = this.step_rate;
 		let maxSubSteps = 5;

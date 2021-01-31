@@ -11,7 +11,8 @@ class Builder {
 			client_id: client_id,
 			team_color: team_color,
 			start_position: start_position,
-			radius: 2.5,
+			radius: 2,
+			sensor_radius: 3.25,
 			collision_group: CollisionGroup.PLAYER
 		});
 		
@@ -21,7 +22,7 @@ class Builder {
 	create_ball() {
 		let ball = new Ball({
 			start_position: [0.0, 0.0],
-			radius: 2.0,
+			radius: 1.5,
 			collision_group: CollisionGroup.BALL
 		});
 		return ball;

@@ -2,14 +2,16 @@ const CollisionGroup = {
 	PLAYER  : Math.pow(2, 1),
 	BALL    : Math.pow(2, 2),
 	BOUNDARY: Math.pow(2, 3),
-	BOX		: Math.pow(2, 4)
+	BOX		: Math.pow(2, 4),
+	SENSOR	: Math.pow(2, 5)
 };
 
 const CollisionMask = {
 	PLAYER  : CollisionGroup.PLAYER | CollisionGroup.BALL | CollisionGroup.BOUNDARY,
-	BALL    : CollisionGroup.PLAYER | CollisionGroup.BOX,
+	BALL    : CollisionGroup.PLAYER | CollisionGroup.BOX | CollisionGroup.SENSOR,
 	BOUNDARY: CollisionGroup.PLAYER,
-	BOX		: CollisionGroup.BALL
+	BOX		: CollisionGroup.BALL,
+	SENSOR	: CollisionGroup.BALL
 };
 
 const NetworkEvent = {
@@ -25,9 +27,9 @@ const NetworkEvent = {
 };
 
 const GoalEvent = {
-	NONE		: 0,
-	RED_TEAM	: 1,
-	BLUE_TEAM	: 2
+	NONE		:  0,
+	RED_TEAM	: -1,
+	BLUE_TEAM	:  1
 }
 
-module.exports = {CollisionGroup, CollisionMask, NetworkEvent};
+module.exports = {CollisionGroup, CollisionMask, NetworkEvent, GoalEvent};

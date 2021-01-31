@@ -12,7 +12,7 @@ class Scoreboard {
 	}
 	
 	render(ctx) {
-		let scoreboard_text = "red: " + this.red_score + " blue: " + this.blue_score;
+		let scoreboard_text = "red: " + this.red_score + " -  blue: " + this.blue_score;
 		
 		ctx.save();
 		ctx.scale(1, -1);
@@ -29,9 +29,9 @@ class Scoreboard {
 	}
 	
 	increment_score(team) {
-		if(team < 0)
+		if(team == GoalEvent.RED_TEAM)
 			this.blue_score += 1;
-		else if(team > 0)
+		else if(team == GoalEvent.BLUE_TEAM)
 			this.red_score += 1;
 	}
 }

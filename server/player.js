@@ -1,15 +1,16 @@
 let p2 = require("p2");
+let {CollisionGroup, CollisionMask} = require("./enums.js");
 
-// after everything is over maybe create a base circle class that player and ball will have
 class Player {
 	constructor(props) {
 		this.keyboard = props.keyboard;
 		this.name = props.name || "default_name";
 		this.client_id = props.client_id;
-		this.force = 50;
+		this.force = 55;
 		this.max_velocity = 20;
-		this.shape = null;
 		this.body = null;
+		this.shape = null;
+		this.sensor_shape = null;
 		
 		this.init(props);
 	}
@@ -17,7 +18,15 @@ class Player {
 	init(props) {
 		this.shape = new p2.Circle({ 
 			radius: props.radius,
-			material: props.material
+			material: props.material,
+			collisionGroup: CollisionGroup.PLAYER,
+			collisionMask: CollisionMask.PLAYER
+		});
+		this.sensor_shape = new p2.Circle({
+			radius: props.sensor_radius,
+			collisionGroup: CollisionGroup.SENSOR,
+			collisionMask: CollisionMask.SENSOR,
+			sensor: true
 		});
 		this.body = new p2.Body({
 			mass: props.mass, 
@@ -26,9 +35,7 @@ class Player {
 			damping: props.damping
 		});
 		this.body.addShape(this.shape);
-		
-		this.shape.collisionGroup = props.collision_group;
-		this.shape.collisionMask  = props.collision_mask;
+		this.body.addShape(this.sensor_shape);
 	}
 	
 	update(delta_time) {

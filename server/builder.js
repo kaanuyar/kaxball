@@ -5,7 +5,6 @@ let Player = require("./player.js");
 let World = require("./world.js");
 let Box = require("./box.js");
 let Goalpost = require("./goalpost.js");
-let {CollisionGroup, CollisionMask} = require("./enums.js");
 
 class Builder {
 	constructor() {
@@ -35,12 +34,11 @@ class Builder {
 			client_id: client_id,
 			start_position: start_position,
 			start_velocity: [0.0, 0.0],
-			radius: 2.5,
+			radius: 2,
+			sensor_radius: 3,
 			mass: 1,
 			damping: 0.9,
-			material: materials.player_material,
-			collision_group: CollisionGroup.PLAYER,
-			collision_mask: CollisionMask.PLAYER
+			material: materials.player_material
 		});
 		
 		return player;
@@ -50,13 +48,11 @@ class Builder {
 		let ball = new Ball({
 			start_position: [0.0, 0.0],
 			start_velocity: [0.0, 0.0],
-			radius: 2.0,
+			radius: 1.5,
 			mass: 0.5,
 			damping: 0.6,
 			world: world,
-			material: materials.ball_material,
-			collision_group: CollisionGroup.BALL,
-			collision_mask: CollisionMask.BALL
+			material: materials.ball_material
 		});
 		
 		return ball;
@@ -71,9 +67,7 @@ class Builder {
 			let boundary = new Plane({
 				start_position: boundariesPos[i],
 				angle: boundariesAngle[i],
-				material: materials.boundary_material,
-				collision_group: CollisionGroup.BOUNDARY,
-				collision_mask: CollisionMask.BOUNDARY
+				material: materials.boundary_material
 			});
 			boundaries_arr.push(boundary);
 		}
@@ -88,7 +82,7 @@ class Builder {
 		let boxes_arr = [];
 		
 		for(let i = 0; i < boxes_pos.length; i++) {
-			let box = this.create_box({
+			let box = new Box({
 				start_position: boxes_pos[i],
 				angle: 0,
 				width: boxes_width[i],
@@ -101,43 +95,25 @@ class Builder {
 		return boxes_arr;
 	}
 	
-	create_box(props) {
-		let box = new Box({
-			start_position: props.start_position,
-			angle: props.angle,
-			width: props.width,
-			height: props.height,
-			material: props.material,
-			collision_group: CollisionGroup.BOX,
-			collision_mask: CollisionMask.BOX
-		});
-		
-		return box;
-	}
-	
 	create_goalposts(materials, world) {
 		let goalposts_pos = [[30, 0], [-30, 0]];
-		let goalposts_width = [2, 2];
 		let goalposts_arr = [];
 		
 		for(let i = 0; i < goalposts_pos.length; i++) {
-			let box = this.create_box({
-				start_position: goalposts_pos[i],
-				angle: 0,
-				width: goalposts_width[i],
-				height: 10,
-				material: materials.box_material
-			});
-			
 			let goalpost = new Goalpost({
-				box: box,
-				world: world
+				world: world,
+				start_position: goalposts_pos[i],
+				width: 2,
+				height: 10,
+				angle: 0,
+				material: materials.box_material
 			});
 			goalposts_arr.push(goalpost);
 		}
 		
 		return goalposts_arr;
 	}
+	
 }
 
 module.exports = Builder;

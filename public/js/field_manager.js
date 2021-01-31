@@ -1,9 +1,6 @@
 class FieldManager {
 	static process_network_event(network_event, field, connection) {
 		switch(network_event.event) {
-			// put pong event inside of connection
-			case NetworkEvent.PONG:
-				break;
 			case NetworkEvent.ADD_ALL:
 				connection.client_id = network_event.self_id;
 				FieldManager.field_add_all(network_event, field);

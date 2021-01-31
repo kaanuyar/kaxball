@@ -1,24 +1,3 @@
-/*
-IDEAS:
-	- add additional sensor circle that covers and extends the player
-	- when everytime user tries to shoot check collision with circle instead of player
-	- SHAPE base
-	- probably need to create base circle class
-	- while doing that might aswell change player and ball classes?
-	
-	- make the field bigger for 2v2, 3v3
-	- adjust the speed and sizes accordingly
-	
-ISSUES: 	
-	- timestamp game state in server rather than client
-	- this way interpolation function will work better
-	- you have to calculate the ping aswell while doing this
-	- all we have to do is time each ping message
-	- maybe decrease the ping interval 
-	- i dont know how reliable is this method
-	- maybe average of all ping messages could be ideal
-	
-*/
 class GameLoop {
 	constructor(canvas_id, display_name) {
 		this.canvas = document.getElementById(canvas_id);

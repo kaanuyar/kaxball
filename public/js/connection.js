@@ -18,6 +18,9 @@ class Connection {
 	
 	socket_on_message(message) {
 		let payload = JSON.parse(message.data);
+		if(payload.event == NetworkEvent.PONG)
+			return;
+		
 		payload.timestamp = window.performance.now();
 		this.pending_messages.push(payload);
 	}
