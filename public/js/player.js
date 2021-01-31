@@ -10,7 +10,7 @@ class Player {
 		this.sensor_radius = props.sensor_radius;
 		
 		this.position_buffer = [];
-		this.update_tick = 30;
+		this.update_tick = 20;
 	}
 	
 	update(delta_time) {

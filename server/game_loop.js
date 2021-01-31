@@ -9,7 +9,7 @@ class GameLoop {
 		
 		this.update_rate = 1/60;
 		this.step_rate = 1/30;
-		this.message_rate = 1/30;
+		this.message_rate = 1/20;
 		
 		this.last_time = 0;
 		this.frame_count = 0;
