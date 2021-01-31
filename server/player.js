@@ -8,6 +8,8 @@ class Player {
 		this.client_id = props.client_id;
 		this.force = 55;
 		this.max_velocity = 20;
+		this.kick_cooldown = 0;
+		
 		this.body = null;
 		this.shape = null;
 		this.sensor_shape = null;
@@ -39,6 +41,7 @@ class Player {
 	}
 	
 	update(delta_time) {
+		this.decrease_kick_cooldown();
 		this.apply_force(delta_time);
 		this.constrain_velocity(this.max_velocity);
 	}
@@ -60,7 +63,19 @@ class Player {
 	}
 	
 	kick_available() {
-		return this.keyboard.buttons.space;
+		if(this.keyboard.buttons.space == 1 && this.kick_cooldown == 0)
+			return true;
+		else
+			return false;
+	}
+	
+	decrease_kick_cooldown() {
+		if(this.kick_cooldown > 0)
+			this.kick_cooldown -= 1;
+	}
+	
+	increase_kick_cooldown() {
+		this.kick_cooldown += 10;
 	}
 	
 	apply_force(delta_time) {

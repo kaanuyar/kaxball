@@ -7,8 +7,7 @@ class Ball {
 		this.body = null;
 		
 		this.kick_force = 1500;
-		this.kick_possible = false;
-		this.player_obj = null;
+		this.contacted_players = [];
 		
 		this.init(props);
 	}
@@ -33,8 +32,10 @@ class Ball {
 	}
 	
 	update(delta_time) {
-		if(this.kick_possible && this.player_obj.kick_available())
-			this.kick(delta_time);
+		for(let player of this.contacted_players) {
+			if(player.kick_available())
+				this.kick(player, delta_time);
+		}
 	}
 	
 	set_position_velocity(position, velocity) {
@@ -48,20 +49,21 @@ class Ball {
 	begin_contact_callback(evt) {
 		if(evt.shapeA.collisionGroup == CollisionGroup.SENSOR || 
 		   evt.shapeB.collisionGroup == CollisionGroup.SENSOR) {
-			this.player_obj = evt.objA == this ? evt.objB : evt.objA;
-			this.kick_possible = true;
+			let contacted_player = evt.objA == this ? evt.objB : evt.objA;
+			this.contacted_players.push(contacted_player);
 		}
 	}
 	
 	end_contact_callback(evt) {		
 		if(evt.shapeA.collisionGroup == CollisionGroup.SENSOR || 
 		   evt.shapeB.collisionGroup == CollisionGroup.SENSOR) {
-			this.kick_possible = false;
+			let contacted_player = evt.objA == this ? evt.objB : evt.objA;
+			this.contacted_players = this.contacted_players.filter((e) => { return e !== contacted_player });
 		}
 	}
 	
-	kick(delta_time) {		
-		let p1 = this.player_obj.body;
+	kick(player, delta_time) {		
+		let p1 = player.body;
 		let p2 = this.body;
 		
 		let x = p2.interpolatedPosition[0] - p1.interpolatedPosition[0];
@@ -70,11 +72,9 @@ class Ball {
 
 		//this.body.applyForce([Math.cos(angle) * this.kick_force, Math.sin(angle) * this.kick_force]);
 		let force = this.kick_force * delta_time;
-		//console.log(force, delta_time);
+		console.log(force, delta_time);
 		this.body.applyImpulse([Math.cos(angle) * force, Math.sin(angle) * force]);	
-		this.kick_possible = false;
-		//this.body.force[0] = Math.cos(angle) * this.kick_force;
-		//this.body.force[1] = Math.sin(angle) * this.kick_force;
+		player.increase_kick_cooldown();
 	}
 }
 
