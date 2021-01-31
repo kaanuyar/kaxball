@@ -25,7 +25,7 @@ class Player {
 		
 		ctx.save();
 		ctx.beginPath();
-		ctx.lineWidth = 0.35;
+		ctx.lineWidth = 0.30;
 		ctx.strokeStyle = this.team_color;
 		ctx.arc(x, y, radius, 0, 2 * Math.PI);
 		ctx.stroke();
