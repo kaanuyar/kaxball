@@ -33,8 +33,10 @@ class Ball {
 	
 	update(delta_time) {
 		for(let player of this.contacted_players) {
-			if(player.kick_available())
+			if(player.kick_available()) {
 				this.kick(player, delta_time);
+				player.increase_kick_cooldown();
+			}
 		}
 	}
 	
@@ -72,9 +74,7 @@ class Ball {
 
 		//this.body.applyForce([Math.cos(angle) * this.kick_force, Math.sin(angle) * this.kick_force]);
 		let force = this.kick_force * delta_time;
-		console.log(force, delta_time);
 		this.body.applyImpulse([Math.cos(angle) * force, Math.sin(angle) * force]);	
-		player.increase_kick_cooldown();
 	}
 }
 
