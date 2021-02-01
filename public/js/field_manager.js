@@ -1,6 +1,8 @@
 class FieldManager {
 	static process_network_event(network_event, field, connection) {
 		switch(network_event.event) {
+			case NetworkEvent.PONG:
+				break;
 			case NetworkEvent.ADD_ALL:
 				connection.client_id = network_event.self_id;
 				FieldManager.field_add_all(network_event, field);
@@ -30,7 +32,7 @@ class FieldManager {
 		for(let i = 0; i < players.length; i++)
 			player_positions[players[i].client_id] = [players[i].x, players[i].y];
 		
-		field.set_position_buffers(ball_position, player_positions);
+		field.set_position_buffers(network_event.timestamp, ball_position, player_positions);
 	}
 	
 	static field_add_all(network_event, field) {
