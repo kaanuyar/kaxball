@@ -24,14 +24,13 @@ class FieldManager {
 	}
 	
 	static field_set_position(network_event, field) {
-		let timestamp = network_event.timestamp;
 		let players = network_event.players;
 		let ball_position = [network_event.ball.x, network_event.ball.y];
 		let player_positions = {};
 		for(let i = 0; i < players.length; i++)
 			player_positions[players[i].client_id] = [players[i].x, players[i].y];
 		
-		field.set_position_buffers(timestamp, ball_position, player_positions);
+		field.set_position_buffers(ball_position, player_positions);
 	}
 	
 	static field_add_all(network_event, field) {

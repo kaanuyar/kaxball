@@ -10,7 +10,7 @@ class Connection {
 	
 	init(display_name) {
 		let websocket_protocol = (window.location.protocol == "http:") ? "ws://" : "wss://";
-		this.socket = new WebSocket(websocket_protocol + "kaxball.gigalixirapp.com/ws/?display_name=" + display_name);
+		this.socket = new WebSocket(websocket_protocol + "localhost/ws/?display_name=" + display_name);
 		
 		setTimeout(this.send_ping.bind(this), this.ping_interval);
 		this.socket.addEventListener("message", this.socket_on_message.bind(this));
@@ -18,9 +18,7 @@ class Connection {
 	
 	socket_on_message(message) {
 		let payload = JSON.parse(message.data);
-		if(payload.event == NetworkEvent.PONG)
-			return;
-		
+
 		payload.timestamp = window.performance.now();
 		this.pending_messages.push(payload);
 	}

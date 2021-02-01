@@ -21,7 +21,7 @@ class Server {
 		this.app.use("/", express.static("public"));
 		this.wss.on("connection", this.socket_on_connection.bind(this));
 
-		this.server.listen(4000);
+		this.server.listen(80);
 	}
 	
 	socket_on_connection(socket, req) {
